@@ -149,6 +149,17 @@
   </div>
   <div class="card">
   <div class="card-header">
+	<span>天气预报位置设置</span>
+  </div>
+  <div class="card-content">
+	<span>如果你的天气预报自动识别位置出错，需要手动配置的话，请使用以下两种方法之一获取您的地址，然后通过<code>:setpos</code>命令和<code>:reload</code>命令校正地址！<br>
+	方法一：使用百度获取坐标 <a href="http://api.map.baidu.com/lbsapi/getpoint/">百度坐标点拾取</a><br>
+	方法二：使用YYweather获取城市代码 <a href="http://www.yytianqi.com/citys/1.html">YYweather城市ID对照表</a> (可以使用网页内查找功能寻找你的城市)<br>
+	</span>
+  </div>
+  </div>
+  <div class="card">
+  <div class="card-header">
 	这是一个神奇的主页
   </div>
   <div class="card-content">
@@ -177,10 +188,12 @@
   var params = '&';
   //var site = location.href;
   var site = 'http://ckylintest.esy.es';
+  //var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html';
   var weathercity = 'ip';
+  var weathercityname = '地球';
   var weatherapi = 'http://api.yytianqi.com/observe';
   //?city='+weathercity+'&key=m44rbu8ibsv1il13
-  var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13'};
+  var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13','random':Math.random()};
   var weatherdata;
   var weatherbody;
   var weatherstatus = 'unload';
@@ -189,22 +202,23 @@
   
   function getWeather(){
 	console.log('获取天气：'+weathercity);
+	weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13','random':Math.random()};
 	var weatherbody = '正在获取...';
     weatherstatus = 'loading';
-	//console.log(weatherapi);
+	console.log(weatherquery);
 	httpget(weatherapi,weatherquery,(function(data){
 		weatherstatus = 'loaded';
 		weatherdata = parseJson(data);
-		//console.log(weatherdata);
+		console.log(weatherdata);
 	if(weatherstatus=='failed') {return;}
 	if(weatherdata.msg!=="Sucess"){
-		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>'+weatherdata.directions;
+		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>(E-1)'+weatherdata.msg+' '+weatherdata.directions;
+		document.getElementById('city').innerHTML = '天气预报';
 		return;
 	}
-	weathercity = weatherdata.data.cityName;
-	document.getElementById('city').innerHTML = weathercity;
+	weathercityname = weatherdata.data.cityName;
+	document.getElementById('city').innerHTML = weathercityname;
 	d = weatherdata.data;
-	//console.log(d);
 	var weatherbody = '';
 	weatherbody = weatherbody + '最后更新时间：' + d.lastUpdate;
 	weatherbody = weatherbody + '<br><h1>'+d.tq+' '+d.qw+'℃</h1>';
@@ -214,7 +228,8 @@
 	}),(function(e){
 		weatherstatus = 'failed';
 		console.error('天气获取错误：'+e);
-		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>'+e;
+		document.getElementById('city').innerHTML = '天气预报';
+		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>(E-2)'+e;
 	}));
   }
   
@@ -231,6 +246,7 @@
 	var bi = getUrlParam('bgimg');
 	var se = getUrlParam('searchEngine');
 	var bt = getUrlParam('bigtitle');
+	var wc = getUrlParam('weathercity');
 	if(pc!==null){
 		changed = true;
 		setColor(pc);
@@ -249,6 +265,11 @@
 		changed = true;
 		setBigTitle(bt);
 		UpdateBigTitle();
+	}
+	if(wc!==null){
+		changed = true;
+		changeCity(wc);
+		getWeather();
 	}
 	updateSettingsUrl();
 	if(changed){
@@ -279,23 +300,29 @@
 	if(bigtitle!=="auto"){
 		settingsparams = settingsparams + '&bigtitle=' + encodeURI(bigtitle);
 	}
+	if(weathercity!=="ip"){
+		settingsparams = settingsparams + '&weathercity=' + encodeURI(weathercity);
+	}
 	return settingsparams;
   }
   
   function changeCity(city){
 	if(!city){
 		weathercity = 'ip';
+		var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13'};
 		getWeather();
 		updateSettingsUrl();
 		return;
 	}
 	if(isEmpty(city)){
 		weathercity = 'ip';
+		var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13'};
 		getWeather();
 		updateSettingsUrl();
 		return;
 	}
 	weathercity = city;
+	var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13'};
 	getWeather();
 	updateSettingsUrl();
 	return;
