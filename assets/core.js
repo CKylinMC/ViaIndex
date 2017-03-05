@@ -376,6 +376,12 @@ function updateColor() {
 	addStyle(".card-header {color:" + primaryColor + ";}");
 	addStyle(".block-name {color:" + primaryColor + ";}");
 	addStyle("button {color:" + primaryColor + ";}");
+	if (primaryColor !== "#1e88e5") {
+		var m = document.createElement("meta");
+		m.name = "theme-color";
+		m.content = primaryColor;
+		document.getElementsByTagName("head").item(0).appendChild(m);
+	}
 }
 
 function setbg(url) {
@@ -445,11 +451,11 @@ function getPosDM() {
 	});
 }
 
-function getNews(){
+function getNews() {
 	//TODO
 }
 
-function loadFavicons(){
+function loadFavicons() {
 	var d = document;
 	d.getElementById('ico-baidu').src = getFavicon('https://www.baidu.com');
 	d.getElementById('ico-google').src = getFavicon('https://www.google.com');
