@@ -373,7 +373,9 @@ function setColor(color) {
 }
 
 function updateColor() {
-	addStyle(".card-header{color:" + primaryColor + "}");
+	addStyle(".card-header {color:" + primaryColor + ";}");
+	addStyle(".block-name {color:" + primaryColor + ";}");
+	addStyle("button {color:" + primaryColor + ";}");
 }
 
 function setbg(url) {

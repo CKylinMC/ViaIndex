@@ -27,7 +27,6 @@ a:active {
 }
 
 button {
-	color: #1e88e5;
 	background-color: white;
 	border: none;
 	outline: none
@@ -171,6 +170,7 @@ button#search-submit:hover {
 }
 
 .block {
+	width: 18%;
 	margin: 0 10px;
 	display: block;
 	float: left;
@@ -187,7 +187,6 @@ button#search-submit:hover {
 .block-name {
 	text-align: center;
 	font-size: 18px;
-	color: #1e88e5;
 }
 
 #favicon {
