@@ -447,6 +447,14 @@ function getNews(){
 	//TODO
 }
 
+function loadFavicons(){
+	var d = document;
+	d.getElementById('ico-baidu').src = getFavicon('https://www.baidu.com');
+	d.getElementById('ico-google').src = getFavicon('https://www.google.com');
+	d.getElementById('ico-bilibili').src = getFavicon('https://www.bilibili.com');
+	d.getElementById('ico-github').src = getFavicon('https://www.github.com');
+}
+
 function init() {
 	try {
 		//设置背景
@@ -459,6 +467,7 @@ function init() {
 		updateColor();
 		coverSettings();
 		getWeather();
+		loadFavicons();
 		console.log('Loaded.');
 	} catch (e) {
 		console.error('初始化页面时出错：' + e.message);

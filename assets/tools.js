@@ -155,7 +155,7 @@ function parseURL(url) {
             var ret = {},
                 seg = a.search.replace(/^\?/, '').split('&'),
                 len = seg.length, i = 0, s; //len = 2
-            alert(a.search)
+            //alert(a.search)
             for (; i < len; i++) {
                 if (!seg[i]) { continue; }
                 s = seg[i].split('=');
@@ -174,7 +174,9 @@ function parseURL(url) {
 function getFavicon(url){
     if(!url) return false;
     var domain = parseURL(url);
-    return "http://statics.dnspod.cn/proxy_favicon/_/favicon?domain="+domain;
+    console.log(domain);
+    //return "http://statics.dnspod.cn/proxy_favicon/_/favicon?domain="+domain.host;
+    return "http://api.byi.pw/favicon/?url="+domain.host;
 }
 
 //Check if tools.js is loaded.
