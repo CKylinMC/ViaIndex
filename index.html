@@ -188,13 +188,14 @@
   var changed = false;
   
   function getWeather(){
-  var weatherbody = '正在获取...';
+	console.log('获取天气：'+weathercity);
+	var weatherbody = '正在获取...';
     weatherstatus = 'loading';
-	console.log(weatherapi);
+	//console.log(weatherapi);
 	httpget(weatherapi,weatherquery,(function(data){
 		weatherstatus = 'loaded';
 		weatherdata = parseJson(data);
-		console.log(weatherdata);
+		//console.log(weatherdata);
 	if(weatherstatus=='failed') {return;}
 	if(weatherdata.msg!=="Sucess"){
 		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>'+weatherdata.directions;
@@ -203,12 +204,12 @@
 	weathercity = weatherdata.data.cityName;
 	document.getElementById('city').innerHTML = weathercity;
 	d = weatherdata.data;
-	console.log(d);
+	//console.log(d);
 	var weatherbody = '';
 	weatherbody = weatherbody + '最后更新时间：' + d.lastUpdate;
 	weatherbody = weatherbody + '<br><h1>'+d.tq+' '+d.qw+'℃</h1>';
 	weatherbody = weatherbody + '<img style="display:block" src="imgs/'+d.numtq+'_'+daynight+'.png" width="120px"/>';
-	weatherbody = weatherbody + '<br><p id="weather-detile">'+d.fl+' '+d.fx+'<br>当前湿度：'+d.sd+'</p>';
+	weatherbody = weatherbody + '<br><p id="weather-detile">'+d.fx+' '+d.fl+'<br>当前湿度：'+d.sd+'</p>';
 	document.getElementById('weather').innerHTML = weatherbody;
 	}),(function(e){
 		weatherstatus = 'failed';
@@ -269,7 +270,7 @@
 	if(primaryColor!=="#1e88e5"){
 		settingsparams = settingsparams + '&primaryColor=' + encodeURI(primaryColor);
 	}
-	if(bgimg!=="http://www.dujin.org/sys/bing/1920.php"){
+	if(bgimg!=="http://www.dujin.org/sys/bing/1366.php"){
 		settingsparams = settingsparams + '&bgimg=' + encodeURI(bgimg);
 	}
 	if(searchEngine!=="https://www.baidu.com/s?wd="){
@@ -279,6 +280,25 @@
 		settingsparams = settingsparams + '&bigtitle=' + encodeURI(bigtitle);
 	}
 	return settingsparams;
+  }
+  
+  function changeCity(city){
+	if(!city){
+		weathercity = 'ip';
+		getWeather();
+		updateSettingsUrl();
+		return;
+	}
+	if(isEmpty(city)){
+		weathercity = 'ip';
+		getWeather();
+		updateSettingsUrl();
+		return;
+	}
+	weathercity = city;
+	getWeather();
+	updateSettingsUrl();
+	return;
   }
   
   function searchnow(){
@@ -329,6 +349,12 @@
 			location.href = site;
 			return;
 			break;
+		case ':reload':
+			displayTip('重新加载中...');
+			cleanInput();
+			location.href = genSettingsUrl();
+			return;
+			break;
 		case ':settitle':
 			var title = prompt('输入你想要的大标题，输入auto恢复默认');
 			setBigTitle(title);
@@ -345,6 +371,13 @@
 			var color = prompt('输入颜色代码，输入auto恢复默认');
 			displayTip('<font color="'+color+'">颜色</font>已设置')
 			setColor(color);
+			cleanInput();
+			return;
+			break;
+		case ':setpos':
+			var pos = prompt('输入你的【坐标】，输入auto或者ip使用自动识别');
+			displayTip('位置已设置，若获取出错请恢复自动识别')
+			changeCity(pos);
 			cleanInput();
 			return;
 			break;
@@ -488,13 +521,13 @@
   
   function setbg(url){
 	if(!url){
-		bgimg = 'http://www.dujin.org/sys/bing/1920.php';
+		bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 		updatebg();
 		updateSettingsUrl();
 		return;
 	}
 	if(isEmpty(url) || url=='auto'){
-		bgimg = 'http://www.dujin.org/sys/bing/1920.php';
+		bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 		updatebg();
 		updateSettingsUrl();
 		return;
