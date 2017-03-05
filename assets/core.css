@@ -1,0 +1,137 @@
+* {
+	transition: all 1s;
+}
+
+body {
+	margin: 0px;
+	background-color: #f9f9f9;
+	font-family: "微软雅黑";
+}
+
+button {
+	color: #1e88e5;
+	background-color: white;
+	border: none;
+	outline: none
+}
+
+header {
+	padding: 36px;
+	background-color: #03A9F4;
+	color: white;
+	box-shadow: -2px -1px 4px 6px rgba(0, 0, 0, 0.18);
+	margin-bottom: 12px;
+}
+
+header h1 {
+	Text-shadow: 0 0 20px black;
+	margin-bottom: 24px;
+}
+
+#search-box {
+	border-radius: 2px;
+	background-color: rgba(255, 255, 255, 0.49);
+	margin-left: 10%;
+	margin-right: 10%;
+}
+
+#search-box:focus {
+	background-color: white;
+}
+
+#search-box:hover {
+	background-color: white;
+}
+
+input#search-input {
+	z-index: 1;
+	padding-left: 2px;
+	padding-right: 2px;
+	color: white;
+	border: none;
+	border-top-left-radius: 4px;
+	/*border-top-right-radius: 2px;*/
+	/*border-bottom-right-radius: 2px;*/
+	border-bottom-left-radius: 4px;
+	background-color: rgba(0, 0, 0, 0.49);
+	background-color: rgba(255, 255, 255, 0.49);
+	height: 24px;
+	box-shadow: 0 0 7px 3px rgba(0, 0, 0, 0.3);
+}
+
+input#search-input:hover {
+	background-color: rgba(255, 255, 255, 0.49);
+}
+
+input#search-input:focus {
+	color: black;
+	background-color: white;
+	outline: none;
+	box-shadow: 0 0 7px 3px rgba(255, 255, 255, 0.3);
+}
+
+button#search-submit {
+	z-index: 2;
+	color: white;
+	Text-shadow: 0 0 20px black;
+	border: none;
+	height: 26px;
+	background-color: rgba(0, 0, 0, 0.49);
+	/*background-color: rgba(255, 255, 255, 0.49);*/
+	/*border-top-left-radius: 2px;*/
+	border-top-right-radius: 4px;
+	border-bottom-right-radius: 4px;
+	/*border-bottom-left-radius: 2px;*/
+	box-shadow: 4px 0 7px 3px rgba(0, 0, 0, 0.3);
+}
+
+button#search-submit:focus {
+	color: black;
+	background-color: white;
+	border: none;
+	outline: none;
+	box-shadow: 0 0 7px 3px rgba(255, 255, 255, 0.3);
+}
+
+button#search-submit:hover {
+	/*background-color: rgba(255, 255, 255, 0.49);*/
+	color: black;
+	background-color: white;
+	border: none;
+	outline: none;
+	box-shadow: 0 0 7px 3px rgba(255, 255, 255, 0.3);
+}
+
+#search-tip {
+	visibility: hidden;
+	margin-top: 2px;
+	width: 72%;
+	display: block;
+	font-size: 12px;
+	border-radius: 4px;
+	background-color: rgba(0, 0, 0, 0.49);
+	opacity: 0;
+	filter: alpha(opacity=0);
+}
+
+.content {
+	padding-left: 1px;
+	padding-right: 1px;
+	min-height:100%;
+}
+
+.card {
+	background-color: white;
+	padding: 12px;
+	display: block;
+	margin: 10px;
+	border-radius: 4px;
+	border: .1px solid rgba(0, 0, 0, 0.14);
+	box-shadow: 0px 3px 4px 0px rgba(140, 140, 140, 0.38);
+}
+
+.card-header {
+	font-weight: bold;
+	font-size: large;
+	margin-bottom: 12px;
+}
