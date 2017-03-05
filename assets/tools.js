@@ -176,7 +176,7 @@ function getFavicon(url){
     var domain = parseURL(url);
     console.log(domain);
     //return "http://statics.dnspod.cn/proxy_favicon/_/favicon?domain="+domain.host;
-    return "http://api.byi.pw/favicon/?url="+domain.host;
+    return "http://api.byi.pw/favicon/?expire=3600&url="+domain.host;
 }
 
 //Check if tools.js is loaded.
