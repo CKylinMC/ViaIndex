@@ -141,6 +141,14 @@
   <div class="content">
   <div class="card">
   <div class="card-header">
+	<span id="city">天气预报</span>
+  </div>
+  <div class="card-content">
+	<span id="weather">自动获取天气预报</span>
+  </div>
+  </div>
+  <div class="card">
+  <div class="card-header">
 	这是一个神奇的主页
   </div>
   <div class="card-content">
@@ -169,6 +177,44 @@
   var params = '&';
   //var site = location.href;
   var site = 'http://ckylintest.esy.es';
+  var weathercity = 'ip';
+  var weatherapi = 'http://api.yytianqi.com/observe';
+  //?city='+weathercity+'&key=m44rbu8ibsv1il13
+  var weatherquery = {'city':weathercity,'key':'m44rbu8ibsv1il13'};
+  var weatherdata;
+  var weatherbody;
+  var weatherstatus = 'unload';
+  var daynight = '0';
+  
+  function getWeather(){
+  var weatherbody = '正在获取...';
+    weatherstatus = 'loading';
+	console.log(weatherapi);
+	httpget(weatherapi,weatherquery,(function(data){
+		weatherstatus = 'loaded';
+		weatherdata = parseJson(data);
+		console.log(weatherdata);
+	if(weatherstatus=='failed') {return;}
+	if(weatherdata.msg!=="Sucess"){
+		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>'+weatherdata.directions;
+		return;
+	}
+	weathercity = weatherdata.data.cityName;
+	document.getElementById('city').innerHTML = weathercity;
+	d = weatherdata.data;
+	console.log(d);
+	var weatherbody = '';
+	weatherbody = weatherbody + '最后更新时间：' + d.lastUpdate;
+	weatherbody = weatherbody + '<br><h1>'+d.tq+' '+d.qw+'℃</h1>';
+	weatherbody = weatherbody + '<img style="display:block" src="imgs/'+d.numtq+'_'+daynight+'.png" width="120px"/>';
+	weatherbody = weatherbody + '<br><p id="weather-detile">'+d.fl+' '+d.fx+'<br>当前湿度：'+d.sd+'</p>';
+	document.getElementById('weather').innerHTML = weatherbody;
+	}),(function(e){
+		weatherstatus = 'failed';
+		console.error('天气获取错误：'+e);
+		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>'+e;
+	}));
+  }
   
   function resetall(){
   var primaryColor = "#1e88e5";
@@ -318,30 +364,40 @@
 	var tip;
 	if(hour>=4 && hour<6){
 		//tip = "凌晨";
+		daynight = '0';
 		tip = "早起的鸟有虫吃";
 	}else if(hour>=6 && hour<8){
 		//tip = "早上";
+		daynight = '0';
 		tip = "新的一天开始了哟~";
 	}else if(hour>=8 && hour<11) {
+		daynight = '0';
 		tip = "上午好！";
 	}else if(hour>=11 && hour<12) {
+		daynight = '0';
 		//tip = "临近中午";
 		tip = "马上就开饭了袄~";
 	}else if(hour>=12 && hour<13) {
+		daynight = '0';
 		//tip = "中午";
 		tip = "午饭可不能亏了自己";
 	}else if(hour>=13 && hour<14) {
+		daynight = '0';
 		//tip = "下午";
 		tip = "何不睡个懒觉";
 	}else if(hour>=14 && hour<18) {
+		daynight = '0';
 		//tip = "下午";
 		tip = "下午好！";
 	}else if(hour>=18 && hour<20) {
+		daynight = '0';
 		//tip = "傍晚";
 		tip = "傍晚的云彩最美";
 	}else if(hour>=20 && hour<22) {
+		daynight = '1';
 		tip = "晚上好！";
 	}else if(hour>=22) {
+		daynight = '1';
 		//tip = "深夜";
 		tip = "我欲修仙";
 	}
@@ -458,11 +514,12 @@
     document.title="首页";
     //应用主题色
 	updateColor();
+	coverSettings();
+	getWeather();
 	console.log ('Loaded.');
 	}catch(e){
 		console.error('初始化页面时出错：'+e.message);
 	}
-	coverSettings();
     }
 	if(!ToolsJS==true){
 	console.warn('工具包加载失败，document.ready函数已禁用。');
