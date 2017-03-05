@@ -3,14 +3,12 @@
 	<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-
     <title>首页</title>
     <script>
 	console.log ('Start loading');
     document.title="正在加载...";
     </script>
-	<link href="assets/pace.css"></link>
-	<script src="assets/pace.js"></script>
+	<link href="assets/x0popup.min.css" rel="stylesheet" type="text/css"/>
     <style>
 	* {
 	  transition: all 1s;
@@ -20,6 +18,12 @@
 	  background-color: #f9f9f9;
       font-family: "微软雅黑";
       }
+	button{
+	  color: #1e88e5;
+	  background-color: white;
+	  border: none;
+	  outline: none
+	  }
     header {
       padding: 36px;
       background-color: #03A9F4;
@@ -145,17 +149,7 @@
   </div>
   <div class="card-content">
 	<span id="weather">自动获取天气预报</span>
-  </div>
-  </div>
-  <div class="card">
-  <div class="card-header">
-	<span>天气预报位置设置</span>
-  </div>
-  <div class="card-content">
-	<span>如果你的天气预报自动识别位置出错，需要手动配置的话，请使用以下两种方法之一获取您的地址，然后通过<code>:setpos</code>命令和<code>:reload</code>命令校正地址！<br>
-	方法一：使用百度获取坐标 <a href="http://api.map.baidu.com/lbsapi/getpoint/">百度坐标点拾取</a><br>
-	方法二：使用YYweather获取城市代码 <a href="http://www.yytianqi.com/citys/1.html">YYweather城市ID对照表</a> (可以使用网页内查找功能寻找你的城市)<br>
-	</span>
+	<button onclick="HowToFixPosErr()">位置不对？</button><button onclick="getPosZB()">获取坐标</button><button onclick="getPosDM()">获取城市代码</button>
   </div>
   </div>
   <div class="card">
@@ -169,6 +163,7 @@
   </div>
   </body>
   <script src="assets/tools.js"></script>
+  <script src="assets/x0popup.min.js"></script>
   <script>
   var ToolsJS;
   if(!ToolsJS==true){
@@ -569,6 +564,50 @@
 	document.getElementById('header').style.backgroundSize = "cover";
   }
   
+  function HowToFixPosErr(){
+	x0p('位置不对的解决方法', '请获取您的坐标或者城市码，然后通过 :setpos 命令和 :reload 命令校正地址！');
+  }
+  function getPosZB(){
+  x0p({
+    text: '从百度坐标拾取获取你的坐标',
+    title: '现在前往？',
+    buttons: [
+        {
+            type: 'error',
+            text: '取消',
+        },
+        {
+            type: 'info',
+            text: '立刻前往'
+        }
+    ]
+}).then(function(data) {
+	if(data.button=='info'){
+		location.href = "http://api.map.baidu.com/lbsapi/getpoint/";
+	}
+});
+  }
+  function getPosDM(){
+  x0p({
+    text: '从YY天气获取你的城市短码',
+    title: '现在前往？',
+    buttons: [
+        {
+            type: 'error',
+            text: '取消',
+        },
+        {
+            type: 'info',
+            text: '立刻前往'
+        }
+    ]
+}).then(function(data) {
+	if(data.button=='info'){
+		location.href = "http://www.yytianqi.com/citys/1.html";
+	}
+});
+  }
+  
   function init(){
   try{
 	//设置背景
@@ -591,6 +630,7 @@
 	}else{
     document.ready(init());
 	}
+
   </script>
   <noscript>
   <center>
