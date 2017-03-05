@@ -185,6 +185,7 @@
   var weatherbody;
   var weatherstatus = 'unload';
   var daynight = '0';
+  var changed = false;
   
   function getWeather(){
   var weatherbody = '正在获取...';
@@ -230,22 +231,26 @@
 	var se = getUrlParam('searchEngine');
 	var bt = getUrlParam('bigtitle');
 	if(pc!==null){
+		changed = true;
 		setColor(pc);
 		updateColor();
 	}
 	if(bi!==null){
+		changed = true;
 		setbg(bi);
 		updatebg();
 	}
 	if(se!==null){
+		changed = true;
 		searchEngine = se;
 	}
 	if(bt!==null){
+		changed = true;
 		setBigTitle(bt);
 		UpdateBigTitle();
 	}
 	updateSettingsUrl();
-	if(params!=="&"){
+	if(changed){
 		displayTip('已应用自定义设置');
 	}
   }
