@@ -9,6 +9,9 @@ if (!ToolsJS == true) {
 	}
 }
 var d = document;
+
+var version = "1.1";
+
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
@@ -298,7 +301,12 @@ function checkCommands(k) {
 			break;
 		///////////
 		case ':getbg':
-			var color = prompt('当前背景下载地址', bgimg);
+			prompt('当前背景下载地址', bgimg);
+			cleanInput();
+			return true;
+			break;
+		case ':ver':
+			autohideTip('当前版本：'+version);
 			cleanInput();
 			return true;
 			break;
