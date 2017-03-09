@@ -14,6 +14,8 @@ var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
 var bigtitle = 'auto';
 var params = '&';
+var firstOpen = true;
+var alwaysTip = false;
 //var site = location.href;
 var URLdata = parseURL(location.href);
 var site = URLdata.host;
@@ -36,11 +38,11 @@ function getWeather() {
 	weatherquery = { 'city': weathercity, 'key': 'm44rbu8ibsv1il13', 'random': Math.random() };
 	var weatherbody = '正在获取...';
 	weatherstatus = 'loading';
-	console.log(weatherquery);
+	//console.log(weatherquery);
 	httpget(weatherapi, weatherquery, (function (data) {
 		weatherstatus = 'loaded';
 		weatherdata = parseJson(data);
-		console.log(weatherdata);
+		//console.log(weatherdata);
 		if (weatherstatus == 'failed') { return; }
 		if (weatherdata.msg !== "Sucess") {
 			document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>(E-1)' + weatherdata.msg + ' ' + weatherdata.directions;
@@ -169,82 +171,8 @@ function searchnow() {
 		displayTip('搜索词为空,输入-直接打开搜索引擎');
 		return;
 	}
-	if (keywords == '-') {
-		console.info('转到搜索引擎');
-		displayTip('正在打开搜索引擎...');
-		location.href = searchEngine;
-		return;
-	}
-	switch (keywords) {
-		case ':testtip':
-			displayTip('Tips Test Success');
-			cleanInput();
-			return;
-			break;
-		case ':hidetip':
-			displayTip('Start Hidden.');
-			hideTip();
-			resetTip();
-			cleanInput();
-			return;
-			break;
-		case ':use google':
-			searchEngine = "https://www.google.com.hk/search?q=";
-			displayTip('已临时切换到谷歌香港搜索');
-			cleanInput();
-			return;
-			break;
-		case ':fanyi':
-			searchEngine = "http://m.iciba.com/";
-			displayTip('翻译模式，请输入词句');
-			cleanInput();
-			return;
-			break;
-		case ':reset':
-			resetall();
-			displayTip('已重置');
-			cleanInput();
-			location.href = site;
-			return;
-			break;
-		case ':reload':
-			displayTip('重新加载中...');
-			cleanInput();
-			location.href = genSettingsUrl();
-			return;
-			break;
-		case ':settitle':
-			var title = prompt('输入你想要的大标题，输入auto恢复默认');
-			setBigTitle(title);
-			cleanInput();
-			return;
-			break;
-		case ':setbg':
-			var bg = prompt('输入你想要的背景图片地址，输入auto恢复默认');
-			setbg(bg);
-			cleanInput();
-			return;
-			break;
-		case ':setcolor':
-			var color = prompt('输入颜色代码，输入auto恢复默认');
-			displayTip('<font color="' + color + '">颜色</font>已设置')
-			setColor(color);
-			cleanInput();
-			return;
-			break;
-		case ':setpos':
-			var pos = prompt('输入你的【坐标】 ，输入auto或者ip使用自动识别');
-			displayTip('位置已设置，若获取出错请恢复自动识别')
-			changeCity(pos);
-			cleanInput();
-			return;
-			break;
-		case ':showurl':
-			var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
-			cleanInput();
-			return;
-			break;
-	}
+	//MARK:switch
+	if (checkCommands(keywords)) return;
 	console.log('开始搜索' + keywords);
 	displayTip('正在搜索...');
 	location.href = searchEngine + encodeURI(keywords);
@@ -298,6 +226,132 @@ function hourscheck(hour) {
 		tip = "我欲修仙";
 	}
 	return tip;
+}
+
+//命令判断
+function checkCommands(k) {
+	var k = k.toLowerCase();
+	if (k == '-') {
+		console.info('转到搜索引擎');
+		displayTip('正在打开搜索引擎...');
+		location.href = searchEngine;
+		return true;
+	}
+	switch (k) {
+		case ':testtip':
+			displayTip('Tips Test Success');
+			cleanInput();
+			return true;
+			break;
+		case ':hidetip':
+			displayTip('Start Hidden.');
+			hideTip();
+			resetTip();
+			cleanInput();
+			return true;
+			break;
+		case ':reset':
+			resetall();
+			displayTip('已重置');
+			cleanInput();
+			location.href = site;
+			return true;
+			break;
+		case ':reload':
+			displayTip('重新加载中...');
+			cleanInput();
+			location.href = genSettingsUrl();
+			return true;
+			break;
+		case ':settitle':
+			var title = prompt('输入你想要的大标题，输入auto恢复默认');
+			setBigTitle(title);
+			autohideTip('大标题已设置');
+			cleanInput();
+			return true;
+			break;
+		case ':setbg':
+			var bg = prompt('输入你想要的背景图片地址，输入auto恢复默认');
+			setbg(bg);
+			autohideTip('背景已经设置');
+			cleanInput();
+			return true;
+			break;
+		case ':setcolor':
+			var color = prompt('输入颜色代码，输入auto恢复默认');
+			autohideTip('<font color="' + color + '">颜色</font>已设置')
+			setColor(color);
+			cleanInput();
+			return true;
+			break;
+		case ':setpos':
+			var pos = prompt('输入你的【坐标】 ，输入auto或者ip使用自动识别');
+			autohideTip('位置已设置，若获取出错请恢复自动识别')
+			changeCity(pos);
+			cleanInput();
+			return true;
+			break;
+		case ':showurl':
+			var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
+			cleanInput();
+			return true;
+			break;
+		///////////
+		case ':getbg':
+			var color = prompt('当前背景下载地址', bgimg);
+			cleanInput();
+			return true;
+			break;
+	}
+	var oneletter = k.substring(0, 2);
+	var twoletter = k.substring(0, 3);
+	var threeletter = k.substring(0, 4);
+	//console.log(oneletter+";"+threeletter);
+	if (oneletter == ':g') {
+		searchEngine = "https://www.google.com.hk/search?q=";
+		document.getElementById('search-input').placeholder = 'Google';
+		autohideTip('谷歌搜索');
+		updateSettingsUrl();
+		cleanInput();
+		return true;
+	}
+	if (oneletter == ':t') {
+		searchEngine = "http://m.iciba.com/";
+		autohideTip('翻译模式');
+		document.getElementById('search-input').placeholder = '翻译模式';
+		updateSettingsUrl();
+		cleanInput();
+		return true;
+	}
+	if (oneletter == ':b') {
+		searchEngine = "https://www.baidu.com/s?wd=";
+		autohideTip('返回默认百度搜索');
+		document.getElementById('search-input').placeholder = '';
+		updateSettingsUrl();
+		cleanInput();
+		return true;
+	}
+	if (twoletter == ':av') {
+		var av = k.substring(4);
+		if(isEmpty(av)) {
+			autohideTip('忘了输入AV号了吧！');
+			return true;
+		}
+		Openbilibili(av);
+		autohideTip('正在打开客户端 | <a class="tiplink" href="javascript:void 0" onclick="webBilibili('+av+')">使用网页版?</a>',10000);
+		cleanInput();
+		return true;
+	}
+	return false;
+}
+
+function autohideTip(text,sec) {
+	if(!sec) var sec = 5000;
+	displayTip(text);
+	//setTimeout(hideTip(),5000);
+	setTimeout(function () {
+		hideTip();
+	}, sec);
 }
 
 function displayTip(tip) {
@@ -452,8 +506,16 @@ function getPosDM() {
 	});
 }
 
-function getNews() {
-	//TODO
+function Openbilibili(av) {
+	var f = document.createElement('iframe');
+	f.src = 'bilibili://video'+av;
+	f.style.display = 'none';
+	document.body.appendChild(f);
+}
+
+function webBilibili(av) {
+	var url = 'http://www.bilibili.com/av'+av;
+	location.href=url;
 }
 
 function loadFavicons() {
@@ -466,6 +528,7 @@ function loadFavicons() {
 
 function init() {
 	try {
+		firstOpen = false;
 		//设置背景
 		document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
 		document.getElementById('header').style.backgroundSize = "cover";
@@ -487,3 +550,7 @@ if (!ToolsJS == true) {
 } else {
 	document.ready(init());
 }
+window.onfocus = (function () {
+	cleanInput();
+	hideTip();
+});

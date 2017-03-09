@@ -179,6 +179,17 @@ function getFavicon(url){
     return "http://api.byi.pw/favicon/?expire=3600&url="+domain.host;
 }
 
+//From Unknow | JS Sleep
+function sleep(numberMillis) {
+	var now = new Date();
+	var exitTime = now.getTime() + numberMillis;
+	while (true) {
+		now = new Date();
+		if (now.getTime() > exitTime)
+			return;
+	}
+}
+
 //Check if tools.js is loaded.
 var ToolsJS = true;
 console.info('Tools.js loaded.');

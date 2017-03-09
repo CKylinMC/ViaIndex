@@ -10,20 +10,13 @@ body {
 }
 
 a {
+	outline: none;
 	color: #666;
 	text-decoration: none
 }
 
 a:active, a:hover {
 	text-decoration: none
-}
-
-a {
-	outline: none;
-}
-
-a:active {
-	star: expression(this.onFocus=this.blur());
 }
 
 button {
@@ -158,7 +151,7 @@ button#search-submit:hover {
 	float: left;
 	width: 100%;
 	overflow: hidden;
-	position: : relative;
+	position: relative;
 }
 
 .block-line {
@@ -191,4 +184,8 @@ button#search-submit:hover {
 
 #favicon {
 	height: 120px;
+}
+
+.tiplink {
+	color: blue;
 }
