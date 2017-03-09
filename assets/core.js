@@ -506,11 +506,17 @@ function getPosDM() {
 	});
 }
 
+/*
 function Openbilibili(av) {
 	var f = document.createElement('iframe');
 	f.src = 'bilibili://video'+av;
 	f.style.display = 'none';
 	document.body.appendChild(f);
+}
+*/
+
+function Openbilibili(av){
+	window.location.href = "bilibili://video/"+av;
 }
 
 function webBilibili(av) {
