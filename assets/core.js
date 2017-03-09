@@ -340,7 +340,8 @@ function checkCommands(k) {
 		return true;
 	}
 	if (twoletter == ':av') {
-		var av = k.substring(4);
+		var kwd = k.replace(" ","");
+		var av = kwd.substring(3);
 		if(isEmpty(av)) {
 			autohideTip('忘了输入AV号了吧！');
 			return true;
