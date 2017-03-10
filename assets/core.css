@@ -189,3 +189,7 @@ button#search-submit:hover {
 .tiplink {
 	color: blue;
 }
+.fterror {
+	font-size: small;
+	color: rgba(0, 0, 0, 0.53);
+}

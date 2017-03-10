@@ -17,6 +17,7 @@ var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
 var bigtitle = 'auto';
 var params = '&';
+var isVia = false;
 var firstOpen = true;
 var alwaysTip = false;
 //var site = location.href;
@@ -33,10 +34,55 @@ var weatherbody;
 var weatherstatus = 'unload';
 var daynight = '0';
 var changed = false;
-var newsdata;
-var newsapi;
+//var newsdata;
+//var newsapi;
+var histtorydata;
+var historyapi = 'http://www.ipip5.com/today/api.php';
+var historyquery = { 'type': 'json' };
+
+function getHistory() {
+	/*
+	httpget(historyapi,{},(function(data){
+		//success
+		histtorydata = parseJson(data);
+		document.getElementById('history').innerHTML = '历史上的今天 - ' + histtorydata.today;
+		var historybody = '<ul>';
+		for(var i = 0, len = historydata.result.length; i < len; i++){
+			historybody = historybody + '<li>' + historydata.result[i] + '</li>';
+		}
+		var historybody = historybody + '</ul>';
+		document.getElementById('history-content').innerHTML = historybody;
+	}),(function(e){
+		//error
+		if(e=="0") e = '网络连接错误';
+		console.error('历史上的今天 获取出现错误:' + e);
+		document.getElementById('history').innerHTML = '时光飞逝';
+		document.getElementById('history-content').innerHTML = '<center>在你生命中的每一天都是特别的<br><i class="fterror">(E-2)' + e + '</i></center>';
+	}));
+	*/
+	jsonp(historyapi,historyquery,(function(data){
+		histtorydata = parseJson(data);
+		if(histtorydata.today == undefined){
+			//error
+			document.getElementById('history').innerHTML = '时光飞逝';
+			document.getElementById('history-content').innerHTML = '<center>在你生命中的每一天都是特别的<br><i class="fterror">(E-3)数据解析失败</i></center>';
+			return;
+		}
+		//success
+		document.getElementById('history').innerHTML = '历史上的今天 - ' + histtorydata.today;
+		var historybody = '<ul>';
+		for(var i = 0, len = historydata.result.length; i < len; i++){
+			historybody = historybody + '<li>' + historydata.result[i] + '</li>';
+		}
+		var historybody = historybody + '</ul>';
+		document.getElementById('history-content').innerHTML = historybody;
+		return;
+	}));
+}
 
 function getWeather() {
+	document.getElementById('city').innerHTML = '天气预报';
+	document.getElementById('weather').innerHTML = '正在获取...';
 	console.log('获取天气：' + weathercity);
 	weatherquery = { 'city': weathercity, 'key': 'm44rbu8ibsv1il13', 'random': Math.random() };
 	var weatherbody = '正在获取...';
@@ -48,7 +94,7 @@ function getWeather() {
 		//console.log(weatherdata);
 		if (weatherstatus == 'failed') { return; }
 		if (weatherdata.msg !== "Sucess") {
-			document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>(E-1)' + weatherdata.msg + ' ' + weatherdata.directions;
+			document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br><i class="fterror">(E-1)' + weatherdata.msg + ' ' + weatherdata.directions + '</i>';
 			document.getElementById('city').innerHTML = '天气预报';
 			return;
 		}
@@ -56,16 +102,17 @@ function getWeather() {
 		document.getElementById('city').innerHTML = weathercityname;
 		d = weatherdata.data;
 		var weatherbody = '';
-		weatherbody = weatherbody + '最后更新时间：' + d.lastUpdate;
+		weatherbody = weatherbody + '<i class="fterror">最后更新时间：' + d.lastUpdate + '</i>';
 		weatherbody = weatherbody + '<br><h1>' + d.tq + ' ' + d.qw + '℃</h1>';
 		weatherbody = weatherbody + '<img style="display:block" src="imgs/' + d.numtq + '_' + daynight + '.png" width="120px"/>';
 		weatherbody = weatherbody + '<br><p id="weather-detile">' + d.fx + ' ' + d.fl + '<br>当前湿度：' + d.sd + '</p>';
 		document.getElementById('weather').innerHTML = weatherbody;
 	}), (function (e) {
+		if(e=="0") e = '网络连接错误';
 		weatherstatus = 'failed';
 		console.error('天气获取错误：' + e);
-		document.getElementById('city').innerHTML = '天气预报';
-		document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br>(E-2)' + e;
+		document.getElementById('city').innerHTML = '气象万千';
+		document.getElementById('weather').innerHTML = '每一天都有好心情！<br><i class="fterror">(E-2)' + e + '</i>';
 	}));
 }
 
@@ -302,6 +349,12 @@ function checkCommands(k) {
 			return true;
 			break;
 		///////////
+		case ':reinit':
+			autohideTip('重新初始化...');
+			cleanInput();
+			init();
+			return true;
+			break;
 		case ':getbg':
 			prompt('当前背景下载地址', bgimg);
 			cleanInput();
@@ -556,6 +609,7 @@ function init() {
 		updateColor();
 		coverSettings();
 		getWeather();
+		//getHistory();
 		loadFavicons();
 		console.log('Loaded.');
 	} catch (e) {

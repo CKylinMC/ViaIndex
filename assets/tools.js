@@ -133,6 +133,35 @@ function Ajax(type, url, data, success, failed) {
     }
 }
 
+//From jser.com | getParams
+function getParams(data) {
+    var arr = [];
+    for (var param in data){
+        arr.push(encodeURIComponent(param) + '=' +encodeURIComponent(data[param]));
+    }
+    console.log(arr);
+    arr.push(('randomNumber=' + Math.random()).replace('.'));
+    console.log(arr);
+    return arr.join('&');
+}
+
+//From caibaojian.com | jsonp
+function jsonp(url, data, callback) {
+    var script = document.createElement('script');
+    document.body.appendChild(script);
+
+    data = data || {};
+    data.callback = 'cb' + new Date().getTime();
+    window[data.callback] = callback;
+
+    url += '?' + getParams(data);
+
+    script.src = url;
+    script.onload = function(){
+        document.body.removeChild(script);
+    }
+}
+
 function httpget(url, data, success, failed) {
     return Ajax('get', url, data, success, failed);
 }
@@ -174,7 +203,7 @@ function parseURL(url) {
 function getFavicon(url){
     if(!url) return false;
     var domain = parseURL(url);
-    console.log(domain);
+    //console.log(domain);
     //return "http://statics.dnspod.cn/proxy_favicon/_/favicon?domain="+domain.host;
     return "http://api.byi.pw/favicon/?expire=3600&url="+domain.host;
 }
