@@ -10,7 +10,7 @@ if (!ToolsJS == true) {
 }
 var d = document;
 
-var version = "1.1";
+var version = "1.1.1";
 
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
@@ -21,7 +21,7 @@ var firstOpen = true;
 var alwaysTip = false;
 //var site = location.href;
 var URLdata = parseURL(location.href);
-var site = URLdata.host;
+var site = URLdata.protocol+'://'+URLdata.host;
 //var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html';
 var weathercity = 'ip';
 var weathercityname = '地球';
