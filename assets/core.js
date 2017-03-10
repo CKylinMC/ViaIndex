@@ -85,6 +85,7 @@ function coverSettings() {
 	var wc = getUrlParam('weathercity');
 	if (pc !== null) {
 		changed = true;
+		var pc = pc.replace('!','#');
 		setColor(pc);
 		updateColor();
 	}
@@ -125,7 +126,8 @@ function updateSettingsUrl() {
 function genNewSettingsUrl() {
 	var settingsparams = '&';
 	if (primaryColor !== "#1e88e5") {
-		settingsparams = settingsparams + '&primaryColor=' + encodeURI(primaryColor);
+		var pcolor = primaryColor.replace('#','!');
+		settingsparams = settingsparams + '&primaryColor=' + encodeURI(pcolor);
 	}
 	if (bgimg !== "http://www.dujin.org/sys/bing/1366.php") {
 		settingsparams = settingsparams + '&bgimg=' + encodeURI(bgimg);
