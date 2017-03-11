@@ -127,6 +127,10 @@ button#search-submit:hover {
 	filter: alpha(opacity=0);
 }
 
+#search-tip a {
+	color: darkorange;
+}
+
 .content {
 	padding-left: 1px;
 	padding-right: 1px;

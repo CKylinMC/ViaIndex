@@ -414,6 +414,7 @@ function checkCommands(k) {
 			return true;
 			break;
 	}
+	var nocommand = k.substring(0, 1);
 	var oneletter = k.substring(0, 2);
 	var twoletter = k.substring(0, 3);
 	var threeletter = k.substring(0, 4);
@@ -475,17 +476,29 @@ function checkCommands(k) {
 		//console.log('Run qrcode end.');
 		return true;
 	}
+	if (nocommand == ':') {
+		autohideTip('未知命令，使用搜索引擎搜索？ | <a href="'+searchEngine+k+'">搜索</a>','auto',(function(){
+			cleanInput();
+		}));
+		return true;
+	}
 	return false;
 }
 
-function autohideTip(text, sec) {
-	if (!sec) var sec = 5000;
+function autohideTip(text, sec, callback) {
+	if (!sec||sec=='auto') var sec = 5000;
 	displayTip(text);
 	//setTimeout(hideTip(),5000);
 	clearTimeout(timeout);
 	timeout = setTimeout(function () {
 		hideTip();
+		if(callback) callback(text);
 	}, sec);
+}
+
+function onType(){
+	clearTimeout(timeout);
+	hideTip();
 }
 
 function displayTip(tip) {

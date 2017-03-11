@@ -20,7 +20,7 @@
       <h1 id="big-title">Welcome!</h1>
       <form id="search-form">
         <div class="search-box">
-          <input id="search-input" autocomplete="off" type="text" /><button name="s" id="search-submit" onclick="searchnow();return false;"> <i id="search-button"></i> </button>
+          <input id="search-input" oninput="onType()" autocomplete="off" type="text" /><button name="s" id="search-submit" onclick="searchnow();return false;"> <i id="search-button"></i> </button>
           <span id="search-tip">Powered by BaiduSearch</span>
         </div>
       </form>
