@@ -10,20 +10,21 @@ if (!ToolsJS == true) {
 }
 var d = document;
 
-var version = "1.1.1";
+var version = "1.2";
 
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
 var bigtitle = 'auto';
 var params = '&';
+var timeout;
 var isVia = false;
 var firstOpen = true;
 var alwaysTip = false;
 //var site = location.href;
 var URLdata = parseURL(location.href);
-var site = URLdata.protocol+'://'+URLdata.host;
-//var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html';
+//var site = URLdata.protocol+'://'+URLdata.host;
+var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html';
 var weathercity = 'ip';
 var weathercityname = '地球';
 var weatherapi = 'http://api.yytianqi.com/observe';
@@ -39,6 +40,53 @@ var changed = false;
 var histtorydata;
 var historyapi = 'http://www.ipip5.com/today/api.php';
 var historyquery = { 'type': 'json' };
+
+function setSearchIco() {
+	document.getElementById('search-button').style.display = 'block'
+	document.getElementById('search-button').style.opacity = "0";
+	document.getElementById('search-button').style.filter = "alpha(opacity=0)";
+	var se = searchEngine;
+	var bd = 'https://www.baidu.com/s?wd=';
+	var gg = 'https://www.google.com.hk/search?q=';
+	var fy = 'http://m.iciba.com/';
+	var map = 'http://map.sogou.com/#&lq=';
+	setTimeout((function () {
+		if (se == bd) {
+			document.getElementById('search-button').className = 'fa fa-search';
+		} else if (se == gg) {
+			document.getElementById('search-button').className = 'fa fa-google';
+		} else if (se == fy) {
+			document.getElementById('search-button').className = 'fa fa-language';
+		} else if (se == map) {
+			document.getElementById('search-button').className = 'fa fa-map';
+		} else {
+			document.getElementById('search-button').className = 'fa';
+			document.getElementById('search-button').innerHTML = '';
+			document.getElementById('search-button').style.backgroundImage = getFavicon(se);
+		}
+		document.getElementById('search-button').style.opacity = "100";
+		document.getElementById('search-button').style.filter = "alpha(opacity=100)";
+	}), 360);
+}
+
+function makeQR(value) {
+	if(isEmpty(value)){
+		autohideTip('二维码内容为空');
+		return false;
+	}
+	console.log('Run QR Maker - '+value);
+	var qr = qrcode.QRCode(10, 'H');
+	qr.addData(value);
+	qr.make();
+	document.getElementById('qrcontent').innerHTML = '<center>'+qr.createImgTag(3)+'<hr>'+value+'<br><i class="fterror"> 长按可以保存二维码 </i></center>';
+	document.getElementById('qrframe').style.display = 'block';
+	document.getElementById('qrframe').scrollIntoView(true);
+	return true;
+}
+
+function qrclose(){
+	document.getElementById('qrframe').style.display = 'none';
+}
 
 function getHistory() {
 	/*
@@ -60,9 +108,9 @@ function getHistory() {
 		document.getElementById('history-content').innerHTML = '<center>在你生命中的每一天都是特别的<br><i class="fterror">(E-2)' + e + '</i></center>';
 	}));
 	*/
-	jsonp(historyapi,historyquery,(function(data){
+	jsonp(historyapi, historyquery, (function (data) {
 		histtorydata = parseJson(data);
-		if(histtorydata.today == undefined){
+		if (histtorydata.today == undefined) {
 			//error
 			document.getElementById('history').innerHTML = '时光飞逝';
 			document.getElementById('history-content').innerHTML = '<center>在你生命中的每一天都是特别的<br><i class="fterror">(E-3)数据解析失败</i></center>';
@@ -71,7 +119,7 @@ function getHistory() {
 		//success
 		document.getElementById('history').innerHTML = '历史上的今天 - ' + histtorydata.today;
 		var historybody = '<ul>';
-		for(var i = 0, len = historydata.result.length; i < len; i++){
+		for (var i = 0, len = historydata.result.length; i < len; i++) {
 			historybody = historybody + '<li>' + historydata.result[i] + '</li>';
 		}
 		var historybody = historybody + '</ul>';
@@ -108,7 +156,7 @@ function getWeather() {
 		weatherbody = weatherbody + '<br><p id="weather-detile">' + d.fx + ' ' + d.fl + '<br>当前湿度：' + d.sd + '</p>';
 		document.getElementById('weather').innerHTML = weatherbody;
 	}), (function (e) {
-		if(e=="0") e = '网络连接错误';
+		if (e == "0") e = '网络连接错误';
 		weatherstatus = 'failed';
 		console.error('天气获取错误：' + e);
 		document.getElementById('city').innerHTML = '气象万千';
@@ -132,7 +180,7 @@ function coverSettings() {
 	var wc = getUrlParam('weathercity');
 	if (pc !== null) {
 		changed = true;
-		var pc = pc.replace('!','#');
+		var pc = pc.replace('!', '#');
 		setColor(pc);
 		updateColor();
 	}
@@ -173,7 +221,7 @@ function updateSettingsUrl() {
 function genNewSettingsUrl() {
 	var settingsparams = '&';
 	if (primaryColor !== "#1e88e5") {
-		var pcolor = primaryColor.replace('#','!');
+		var pcolor = primaryColor.replace('#', '!');
 		settingsparams = settingsparams + '&primaryColor=' + encodeURI(pcolor);
 	}
 	if (bgimg !== "http://www.dujin.org/sys/bing/1366.php") {
@@ -361,7 +409,7 @@ function checkCommands(k) {
 			return true;
 			break;
 		case ':ver':
-			autohideTip('当前版本：'+version);
+			autohideTip('当前版本：' + version);
 			cleanInput();
 			return true;
 			break;
@@ -375,6 +423,7 @@ function checkCommands(k) {
 		document.getElementById('search-input').placeholder = 'Google';
 		autohideTip('谷歌搜索');
 		updateSettingsUrl();
+		setSearchIco()
 		cleanInput();
 		return true;
 	}
@@ -383,6 +432,16 @@ function checkCommands(k) {
 		autohideTip('翻译模式');
 		document.getElementById('search-input').placeholder = '翻译模式';
 		updateSettingsUrl();
+		setSearchIco()
+		cleanInput();
+		return true;
+	}
+	if (threeletter == ':map') {
+		searchEngine = "http://map.sogou.com/#&lq=";
+		autohideTip('地图搜索');
+		document.getElementById('search-input').placeholder = '地图搜索';
+		updateSettingsUrl();
+		setSearchIco()
 		cleanInput();
 		return true;
 	}
@@ -391,29 +450,40 @@ function checkCommands(k) {
 		autohideTip('返回默认百度搜索');
 		document.getElementById('search-input').placeholder = '';
 		updateSettingsUrl();
+		setSearchIco()
 		cleanInput();
 		return true;
 	}
 	if (twoletter == ':av') {
-		var kwd = k.replace(" ","");
+		var kwd = k.replace(" ", "");
 		var av = kwd.substring(3);
-		if(isEmpty(av)) {
+		if (isEmpty(av)) {
 			autohideTip('忘了输入AV号了吧！');
 			return true;
 		}
 		Openbilibili(av);
-		autohideTip('正在打开客户端 | <a class="tiplink" href="javascript:void 0" onclick="webBilibili('+av+')">使用网页版?</a>',10000);
+		autohideTip('正在打开客户端 | <a class="tiplink" href="javascript:void 0" onclick="webBilibili(' + av + ')">使用网页版?</a>', 10000);
 		cleanInput();
+		return true;
+	}
+	if (twoletter == ':qr') {
+		//console.log('Try run qr maker');
+		var qrcontent = k.replace(":qr","");
+		var qrcontent = qrcontent.replace(":qr ","");
+		var result = makeQR(qrcontent);
+		if(result )cleanInput();
+		//console.log('Run qrcode end.');
 		return true;
 	}
 	return false;
 }
 
-function autohideTip(text,sec) {
-	if(!sec) var sec = 5000;
+function autohideTip(text, sec) {
+	if (!sec) var sec = 5000;
 	displayTip(text);
 	//setTimeout(hideTip(),5000);
-	setTimeout(function () {
+	clearTimeout(timeout);
+	timeout = setTimeout(function () {
 		hideTip();
 	}, sec);
 }
@@ -579,13 +649,13 @@ function Openbilibili(av) {
 }
 */
 
-function Openbilibili(av){
-	window.location.href = "bilibili://video/"+av;
+function Openbilibili(av) {
+	window.location.href = "bilibili://video/" + av;
 }
 
 function webBilibili(av) {
-	var url = 'http://www.bilibili.com/av'+av;
-	location.href=url;
+	var url = 'http://www.bilibili.com/av' + av;
+	location.href = url;
 }
 
 function loadFavicons() {
@@ -611,6 +681,7 @@ function init() {
 		getWeather();
 		//getHistory();
 		loadFavicons();
+		setSearchIco()
 		console.log('Loaded.');
 	} catch (e) {
 		console.error('初始化页面时出错：' + e.message);

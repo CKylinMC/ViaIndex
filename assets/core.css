@@ -5,7 +5,8 @@
 body {
 	margin: 0px;
 	padding-bottom: 72px;
-	background-color: #f9f9f9;
+	/*background-color: #f9f9f9;*/
+	background-color: #f4f5f7;
 	font-family: "微软雅黑";
 }
 
@@ -54,6 +55,7 @@ header h1 {
 }
 
 input#search-input {
+	vertical-align: top;
 	z-index: 1;
 	padding-left: 2px;
 	padding-right: 2px;
@@ -70,6 +72,7 @@ input#search-input {
 }
 
 input#search-input:hover {
+	vertical-align: top;
 	background-color: rgba(255, 255, 255, 0.49);
 }
 
@@ -192,4 +195,14 @@ button#search-submit:hover {
 .fterror {
 	font-size: small;
 	color: rgba(0, 0, 0, 0.53);
+}
+#search-button {
+	transition: all .3s;
+}
+.menubutton {
+	display: block;
+	text-align: right;
+}
+#qrframe {
+	display: none;
 }
