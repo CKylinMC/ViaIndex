@@ -38,18 +38,18 @@ function isEmpty(key) {
 
 //From CKylin | random keys
 var random = {};
-random.key = (function () {
+random.key = (function() {
     return Math.random();
 });
-random.number = (function () {
+random.number = (function() {
     return Math.ceil(Math.random());
 });
-random.range = (function (min, max) {
+random.range = (function(min, max) {
     if (!min) return false;
     if (!max) return false;
     return Math.floor(Math.random() * (max - min + 1) + min);
 });
-random.half = (function () {
+random.half = (function() {
     var r = Math.random();
     if (r >= .5) {
         return true;
@@ -58,23 +58,23 @@ random.half = (function () {
 });
 
 //From Unknow | add document.ready();
-(function () {
+(function() {
     var ie = !!(window.attachEvent && !window.opera);
     var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
     var fn = [];
-    var run = function () { for (var i = 0; i < fn.length; i++) fn[i](); };
+    var run = function() { for (var i = 0; i < fn.length; i++) fn[i](); };
     var d = document;
-    d.ready = function (f) {
+    d.ready = function(f) {
         if (!ie && !wk && d.addEventListener)
             return d.addEventListener('DOMContentLoaded', f, false);
         if (fn.push(f) > 1) return;
         if (ie)
-            (function () {
-                try { d.documentElement.doScroll('left'); run(); }
-                catch (err) { setTimeout(arguments.callee, 0); }
+            (function() {
+                try { d.documentElement.doScroll('left');
+                    run(); } catch (err) { setTimeout(arguments.callee, 0); }
             })();
         else if (wk)
-            var t = setInterval(function () {
+            var t = setInterval(function() {
                 if (/^(loaded|complete)$/.test(d.readyState))
                     clearInterval(t), run();
             }, 0);
@@ -120,7 +120,7 @@ function Ajax(type, url, data, success, failed) {
     }
 
     // 处理返回数据
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
                 success(xhr.responseText);
@@ -136,8 +136,8 @@ function Ajax(type, url, data, success, failed) {
 //From jser.com | getParams
 function getParams(data) {
     var arr = [];
-    for (var param in data){
-        arr.push(encodeURIComponent(param) + '=' +encodeURIComponent(data[param]));
+    for (var param in data) {
+        arr.push(encodeURIComponent(param) + '=' + encodeURIComponent(data[param]));
     }
     console.log(arr);
     arr.push(('randomNumber=' + Math.random()).replace('.'));
@@ -157,7 +157,7 @@ function jsonp(url, data, callback) {
     url += '?' + getParams(data);
 
     script.src = url;
-    script.onload = function(){
+    script.onload = function() {
         document.body.removeChild(script);
     }
 }
@@ -180,10 +180,12 @@ function parseURL(url) {
         host: a.hostname,
         port: a.port,
         query: a.search,
-        params: (function () {
+        params: (function() {
             var ret = {},
                 seg = a.search.replace(/^\?/, '').split('&'),
-                len = seg.length, i = 0, s; //len = 2
+                len = seg.length,
+                i = 0,
+                s; //len = 2
             //alert(a.search)
             for (; i < len; i++) {
                 if (!seg[i]) { continue; }
@@ -200,23 +202,37 @@ function parseURL(url) {
     };
 }
 
-function getFavicon(url){
-    if(!url) return false;
+function getFavicon(url) {
+    if (!url) return false;
     var domain = parseURL(url);
     //console.log(domain);
     //return "http://statics.dnspod.cn/proxy_favicon/_/favicon?domain="+domain.host;
-    return "http://api.byi.pw/favicon/?expire=3600&url="+domain.host;
+    return "http://api.byi.pw/favicon/?expire=3600&url=" + domain.host;
 }
 
 //From Unknow | JS Sleep
 function sleep(numberMillis) {
-	var now = new Date();
-	var exitTime = now.getTime() + numberMillis;
-	while (true) {
-		now = new Date();
-		if (now.getTime() > exitTime)
-			return;
-	}
+    var now = new Date();
+    var exitTime = now.getTime() + numberMillis;
+    while (true) {
+        now = new Date();
+        if (now.getTime() > exitTime)
+            return;
+    }
+}
+
+//From xun_2008 | Check if url
+function checkURL(URL) {
+    var str = URL;
+    //判断URL地址的正则表达式为:http(s)?://([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?
+    //下面的代码中应用了转义字符"\"输出一个字符"/"
+    var Expression = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+    var objExp = new RegExp(Expression);
+    if (objExp.test(str) == true) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 //Check if tools.js is loaded.

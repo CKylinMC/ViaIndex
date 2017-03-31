@@ -659,7 +659,7 @@ function setColor(color) {
         updateSettings();
         return;
     }
-    primaryColor = color
+    primaryColor = color;
     updateColor();
     updateSettings();
 }
@@ -695,8 +695,13 @@ function setbg(url) {
 }
 
 function updatebg() {
-    document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
-    document.getElementById('header').style.backgroundSize = "cover";
+    if (checkURL(bgimg)) {
+        document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
+        document.getElementById('header').style.backgroundSize = "cover";
+    } else {
+        document.getElementById('header').style.background = bgimg;
+        //setColor(bgimg);
+    }
 }
 
 function HowToFixPosErr() {
@@ -766,7 +771,7 @@ function loadFavicons() {
     d.getElementById('ico-baidu').src = getFavicon('https://www.baidu.com');
     d.getElementById('ico-google').src = getFavicon('https://www.google.com');
     d.getElementById('ico-bilibili').src = getFavicon('https://www.bilibili.com');
-    d.getElementById('ico-github').src = getFavicon('https://www.github.com');
+    d.getElementById('ico-github').src = getFavicon('https://github.com');
 }
 
 function checkifnew() {
@@ -779,7 +784,22 @@ function checkifnew() {
         });
     } else if (loggedver > version) {
         //updated;
-        x0p('主页版本已更新到 v' + version);
+        x0p({
+            title: '主页版本已更新到 v' + version,
+            buttons: [{
+                    type: 'error',
+                    text: '更新历史',
+                },
+                {
+                    type: 'info',
+                    text: '确定'
+                }
+            ]
+        }).then(function(data) {
+            if (data.button == 'error') {
+                location.href = "https://github.com/Cansll/ViaIndex/commits/master";
+            }
+        });
     }
     setSettings('version', version);
 }
