@@ -41,14 +41,28 @@ var histtorydata;
 var historyapi = 'http://www.ipip5.com/today/api.php';
 var historyquery = { 'type': 'json' };
 var urlmode = false;
+var settingsPrefix = 'viaindexSettings';
 
 
 function getSettings(setting) {
-    return Cookies.get(setting);
+    return Cookies.get(settingsPrefix + '-' + setting);
 }
 
 function setSettings(label, value) {
-    return Cookies.set(label, value, { expires: 999 });
+    return Cookies.set(settingsPrefix + '-' + label, value, { expires: 999 });
+}
+
+function unsetSettings(setting) {
+    if (setting === 'all') {
+        Cookies.remove(settingsPrefix + '-' + 'primaryColor');
+        Cookies.remove(settingsPrefix + '-' + 'bgimg');
+        Cookies.remove(settingsPrefix + '-' + 'searchEngine');
+        Cookies.remove(settingsPrefix + '-' + 'bigtitle');
+        Cookies.remove(settingsPrefix + '-' + 'weathercity');
+        return true;
+    } else {
+        return Cookies.remove(settingsPrefix + '-' + setting);
+    }
 }
 
 function loadSettings() {
@@ -258,6 +272,7 @@ function resetall() {
     var searchEngine = 'https://www.baidu.com/s?wd=';
     var bigtitle = 'auto';
     var params = '&';
+
 }
 
 function coverSettings() {
@@ -297,8 +312,8 @@ function coverSettings() {
     }
 }
 
-function genSettingsUrlUrl() {
-    updateSettings();
+function genSettingsUrl() {
+    updateSettingsUrl();
     return site + '?' + params;
 }
 
@@ -437,15 +452,14 @@ function checkCommands(k) {
             cleanInput();
             return true;
         case ':reset':
-            resetall();
+            unsetSettings('all');
             displayTip('已重置');
             cleanInput();
-            location.href = site;
             return true;
         case ':reload':
+            loadSettings();
             displayTip('重新加载中...');
             cleanInput();
-            location.href = genSettingsUrl();
             return true;
         case ':settitle':
             var title = prompt('输入你想要的大标题，输入auto恢复默认');
@@ -755,6 +769,21 @@ function loadFavicons() {
     d.getElementById('ico-github').src = getFavicon('https://www.github.com');
 }
 
+function checkifnew() {
+    var loggedver = getSettings('version');
+    if (loggedver === undefined) {
+        //First time;
+        x0p({
+            title: '欢迎~~~',
+            text: '感谢选择ViaIndex作为你的主页！偷偷告诉你，这个主页的搜索框不简单哦！'
+        });
+    } else if (loggedver > version) {
+        //updated;
+        x0p('主页版本已更新到 v' + version);
+    }
+    setSettings('version', version);
+}
+
 function init() {
     try {
         firstOpen = false;
@@ -774,7 +803,8 @@ function init() {
         getWeather();
         //getHistory();
         loadFavicons();
-        setSearchIco()
+        setSearchIco();
+        checkifnew();
         console.log('Loaded.');
     } catch (e) {
         console.error('初始化页面时出错：' + e.message);
