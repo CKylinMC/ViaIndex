@@ -42,9 +42,7 @@ var historyapi = 'http://www.ipip5.com/today/api.php';
 var historyquery = { 'type': 'json' };
 var urlmode = false;
 var settingsPrefix = 'viaindexSettings';
-var cards = new Array(
-    'model-welcome',
-);
+var cards = new Array('model-welcome', 'model-usage');
 
 
 function getSettings(setting) {
