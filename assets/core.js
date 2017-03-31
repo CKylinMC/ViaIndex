@@ -160,10 +160,10 @@ function closeCard(cardid) {
 }
 
 function loadCards() {
-    if (typeof cards != 'Array') return false;
     for (var i = 0, len = cards.length; i < len; i++) {
         var cardsetting = getSettings('card-' + cards[i]);
         if (cardsetting == 'closed') {
+            console.log('Skip load card: ' + cards[i]);
             continue;
         }
         document.getElementById(cards[i]).style.display = 'block';
