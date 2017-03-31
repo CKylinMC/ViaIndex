@@ -162,11 +162,11 @@ function closeCard(cardid) {
 function loadCards() {
     for (var i = 0, len = cards.length; i < len; i++) {
         var cardsetting = getSettings('card-' + cards[i]);
-        if (cardsetting == 'closed') {
+        if (cardsetting !== 'closed') {
+            document.getElementById(cards[i]).style.display = 'block';
+        } else {
             console.log('Skip load card: ' + cards[i]);
-            continue;
         }
-        document.getElementById(cards[i]).style.display = 'block';
     }
     return true;
 }
