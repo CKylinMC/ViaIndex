@@ -229,6 +229,6 @@ button#search-submit:hover {
     display: block;
 }
 
-.topmodels div.card {
+.topmodels>div.card {
     display: none;
 }
