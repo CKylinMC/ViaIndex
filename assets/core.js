@@ -10,7 +10,7 @@ if (!ToolsJS == true) {
 }
 var d = document;
 
-var version = "1.2";
+var version = "1.4";
 var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';

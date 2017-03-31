@@ -2,87 +2,86 @@
 <html>
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>首页</title>
-  <script>
-    console.log('Start loading');
-    document.title = "正在加载...";
-  </script>
-  <link href="assets/x0popup.min.css" rel="stylesheet" type="text/css" />
-  <link href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <link href="assets/core.css" rel="stylesheet" type="text/css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>首页</title>
+    <script>
+        console.log('Start loading');
+        document.title = "正在加载...";
+    </script>
+    <link href="assets/x0popup.min.css" rel="stylesheet" type="text/css" />
+    <link href="http://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="assets/core.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-  <header id="header">
-    <center>
-      <h1 id="big-title">Welcome!</h1>
-      <form id="search-form">
-        <div class="search-box">
-          <input id="search-input" oninput="onType()" autocomplete="off" type="text" /><button name="s" id="search-submit" onclick="searchnow();return false;"> <i id="search-button"></i> </button>
-          <span id="search-tip">Powered by BaiduSearch</span>
+    <header id="header">
+        <center>
+            <h1 id="big-title">Welcome!</h1>
+            <form id="search-form">
+                <div class="search-box">
+                    <input id="search-input" oninput="onType()" autocomplete="off" type="text" /><button name="s" id="search-submit" onclick="searchnow();return false;"> <i id="search-button"></i> </button>
+                    <span id="search-tip">Powered by BaiduSearch</span>
+                </div>
+            </form>
+        </center>
+    </header>
+    <div class="content">
+        <div id="qrframe" class="card">
+            <div id="qrtitle" class="card-header">
+                二维码生成工具
+            </div>
+            <div class="card-content">
+                <span id="qrcontent">二维码生成工具</span>
+                <br>
+                <span class="menubutton"><button onclick="qrclose()">关闭</button></span>
+            </div>
         </div>
-      </form>
-    </center>
-  </header>
-  <div class="content">
-    <div id="qrframe" class="card">
-      <div id="qrtitle" class="card-header">
-        二维码生成工具
-      </div>
-      <div  class="card-content">
-        <span id="qrcontent">二维码生成工具</span>
-        <br>
-        <span class="menubutton"><button onclick="qrclose()">关闭</button></span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        这是一个神奇的主页
-      </div>
-      <div class="card-content">
-        尽管现在只有一个搜索框，但是这个搜索框是强大的！
-        <br>
-        <span class="menubutton"><button onclick="location.href='https://github.com/Cansll/ViaIndex'">围观Github</button></span>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header">
-        <span id="city">天气预报</span>
-      </div>
-      <div class="card-content">
-        <center><span id="weather">自动获取天气预报</span></center>
-        <button onclick="HowToFixPosErr()">位置不对？</button><button onclick="getPosZB()">获取坐标</button><button onclick="getPosDM()">获取城市代码</button>
-        <button
-          onclick="getWeather()">刷新天气</button>
-      </div>
-    </div>
-    <div class="card" id="favicon">
-      <div class="card-header">
-        常用网站
-      </div>
-      <div class="card-content">
-        <span id="favsites">
+        <div class="card">
+            <div class="card-header">
+                这是一个神奇的主页
+            </div>
+            <div class="card-content">
+                尽管现在只有一个搜索框，但是这个搜索框是强大的！
+                <br>
+                <span class="menubutton"><button onclick="location.href='https://github.com/Cansll/ViaIndex'">围观Github</button></span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span id="city">天气预报</span>
+            </div>
+            <div class="card-content">
+                <center><span id="weather">自动获取天气预报</span></center>
+                <button onclick="HowToFixPosErr()">位置不对？</button><button onclick="getPosZB()">获取坐标</button><button onclick="getPosDM()">获取城市代码</button>
+                <button onclick="getWeather()">刷新天气</button>
+            </div>
+        </div>
+        <div class="card" id="favicon">
+            <div class="card-header">
+                常用网站
+            </div>
+            <div class="card-content">
+                <span id="favsites">
           <div class="block-frame">
             <div class="block-line">
               <div class="block"><a href="https://www.baidu.com"><img  align="center"  id="ico-baidu" class="block-fav" src="imgs/favicon.ico"/><span class="block-name">Baidu</span></a>
-      </div>
-      <div class="block">
-        <a href="https://www.google.com.hk"><img align="center" id="ico-google" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Google</span></a>
-      </div>
-      <div class="block">
-        <a href="https://www.github.com"><img align="center" id="ico-github" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Github</span></a>
-      </div>
-      <div class="block">
-        <a href="https://www.bilibili.com"><img align="center" id="ico-bilibili" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Bilibili</span></a>
-      </div>
+            </div>
+            <div class="block">
+                <a href="https://www.google.com.hk"><img align="center" id="ico-google" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Google</span></a>
+            </div>
+            <div class="block">
+                <a href="https://www.github.com"><img align="center" id="ico-github" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Github</span></a>
+            </div>
+            <div class="block">
+                <a href="https://www.bilibili.com"><img align="center" id="ico-bilibili" class="block-fav" src="imgs/favicon.ico" /><span class="block-name">Bilibili</span></a>
+            </div>
+        </div>
     </div>
-  </div>
-  </span>
-  </div>
-  </div>
-  <!--<div class="card">
+    </span>
+    </div>
+    </div>
+    <!--<div class="card">
       <div class="card-header">
         <span id="history">历史上的今天</span>
       </div>
@@ -90,7 +89,10 @@
         <span id="history-content"><center>每天都是特别的一天</center></span>
       </div>
     </div>-->
-  </div>
+    </div>
+    <div id="foot">
+        <p class="footer">ViaIndex by <a onclick="location.href='http://www.ckylin-mc.cn'">CKylin</a><span>Copyright @ 2017 under <a onclick='window.open("https://raw.githubusercontent.com/Cansll/ViaIndex/master/LICENSE","test",["toolbar=0,location=no,status=0,resizable=1,width=640,height=360,left=", (screen.width - 640) / 2, ",top=", (screen.height - 560) / 2].join(""))'>MIT License</a>.</span></p>
+    </div>
 </body>
 <script src="assets/tools.js"></script>
 <script src="assets/x0popup.min.js"></script>
