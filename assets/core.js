@@ -164,7 +164,9 @@ function loadCards() {
         var cardsetting = getSettings('card-' + cards[i]);
         if (cardsetting !== 'closed') {
             document.getElementById(cards[i]).style.display = 'block';
+            console.log(cardsetting);
         } else {
+            document.getElementById(cards[i]).style.display = 'none';
             console.log('Skip load card: ' + cards[i]);
         }
     }
