@@ -10,7 +10,7 @@ if (!ToolsJS == true) {
 }
 var d = document;
 
-var version = "1.4";
+var version = "1.5";
 var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
@@ -44,7 +44,6 @@ var urlmode = false;
 var settingsPrefix = 'viaindexSettings';
 var cards = new Array(
     'model-welcome',
-    // 'model-usage'
 );
 
 
