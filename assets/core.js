@@ -113,22 +113,32 @@ function saveAllSettings() {
     if (primaryColor !== "#1e88e5") {
         setSettings('primaryColor', pcolor);
         modified = true;
+    } else {
+        unsetSettings('primaryColor');
     }
     if (bgimg !== "http://www.dujin.org/sys/bing/1366.php") {
         setSettings('bgimg', bgimg);
         modified = true;
+    } else {
+        unsetSettings('bgimg');
     }
     if (searchEngine !== "https://www.baidu.com/s?wd=") {
         setSettings('searchEngine', searchEngine);
         modified = true;
+    } else {
+        unsetSettings('searchEngine');
     }
     if (bigtitle !== "auto") {
         setSettings('bigtitle', bigtitle);
         modified = true;
+    } else {
+        unsetSettings('bigtitle');
     }
     if (weathercity !== "ip") {
         setSettings('weathercity', weathercity);
         modified = true;
+    } else {
+        unsetSettings('weathercity');
     }
     if (modified) {
         console.log('Changes saved.');
