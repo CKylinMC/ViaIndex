@@ -42,6 +42,10 @@ var historyapi = 'http://www.ipip5.com/today/api.php';
 var historyquery = { 'type': 'json' };
 var urlmode = false;
 var settingsPrefix = 'viaindexSettings';
+var cards = new Array(
+    'model-welcome',
+    // 'model-usage'
+);
 
 
 function getSettings(setting) {
@@ -141,6 +145,23 @@ function updateSettings() {
     } else {
         saveAllSettings();
     }
+}
+
+function closeCard(cardid) {
+    var e = document.getElementById(cardid).style.display = 'none';
+    setSettings('card-' + cardid, 'closed');
+}
+
+function loadCards() {
+    if (typeof cards != 'Array') return false;
+    for (var i = 0, len = cards.length; i < len; i++) {
+        var cardsetting = getSettings('card-' + cards[i]);
+        if (cardsetting == 'closed') {
+            continue;
+        }
+        document.getElementById(cards[i]).style.display = 'block';
+    }
+    return true;
 }
 
 function setSearchIco() {
@@ -820,6 +841,7 @@ function init() {
         } else {
             loadSettings();
         }
+        loadCards();
         getWeather();
         //getHistory();
         loadFavicons();

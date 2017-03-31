@@ -17,11 +17,11 @@
 <body>
     <header id="header">
         <center>
-            <h1 id="big-title">Welcome!</h1>
+            <h1 id="big-title">欢迎!</h1>
             <form id="search-form">
                 <div class="search-box">
                     <input id="search-input" oninput="onType()" autocomplete="off" type="text" /><button name="s" id="search-submit" onclick="searchnow();return false;"> <i id="search-button"></i> </button>
-                    <span id="search-tip">Powered by BaiduSearch</span>
+                    <span id="search-tip">Powered by CKylin</span>
                 </div>
             </form>
         </center>
@@ -37,14 +37,26 @@
                 <span class="menubutton"><button onclick="qrclose()">关闭</button></span>
             </div>
         </div>
-        <div class="card">
+        <div id="model-welcome" class="card">
             <div class="card-header">
                 这是一个神奇的主页
             </div>
             <div class="card-content">
                 尽管现在只有一个搜索框，但是这个搜索框是强大的！
                 <br>
-                <span class="menubutton"><button onclick="location.href='https://github.com/Cansll/ViaIndex'">围观Github</button></span>
+                <span class="menubutton"><button onclick="location.href='https://github.com/Cansll/ViaIndex'">围观Github</button>   <button onclick="closeCard('model-welcome')">关闭</button></span>
+            </div>
+        </div>
+        <div id="topmodels">
+            <div id="model-usage" class="card">
+                <div class="card-header">
+                    Tips
+                </div>
+                <div class="card-content">
+                    试试看输入"<b>:qr hello</b>"!
+                    <br>
+                    <span class="menubutton"><button onclick="closeCard('model-usage')">关闭</button></span>
+                </div>
             </div>
         </div>
         <div class="card">
