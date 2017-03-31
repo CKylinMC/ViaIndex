@@ -5,7 +5,7 @@
 function getUrlParam(name) {
     var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
     var r = window.location.search.substr(1).match(reg);
-    if (r != null) {
+    if (r !== null) {
         try {
             return decodeURIComponent(r[2]);
         } catch (e) {
@@ -17,7 +17,7 @@ function getUrlParam(name) {
 
 //From Unknow | parse json
 function parseJson(json) {
-    return eval("(" + json + ")");;
+    return eval("(" + json + ")");
 }
 
 //From zhihu | add style rules to html
@@ -91,7 +91,7 @@ function Ajax(type, url, data, success, failed) {
         xhr = new ActiveXObject('Microsoft.XMLHTTP')
     }
 
-    var type = type.toUpperCase();
+    type = type.toUpperCase();
     // 用于清除缓存
     var random = Math.random();
 
