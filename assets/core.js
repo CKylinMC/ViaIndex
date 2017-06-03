@@ -279,7 +279,7 @@ function getWeather() {
                 weatherdata = getSettings('Data', 'weather');
                 console.warn('天气获取失败，读取离线缓存数据。');
                 document.getElementById('refreshwe').style.color = 'red';
-                document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
+                document.getElementById('refreshwe').innerHTML = '刷新天气(加载天气时出错)';
             }
             // return;
         }
@@ -287,7 +287,7 @@ function getWeather() {
             if (getSettings('hasData', 'weather')) {
                 console.warn('天气获取失败，读取离线缓存数据。');
                 document.getElementById('refreshwe').style.color = 'red';
-                document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
+                document.getElementById('refreshwe').innerHTML = '刷新天气(加载天气时出错)';
                 console.log('(E-1)' + weatherdata.msg + ' ' + weatherdata.directions);
                 weatherdata = getSettings('Data', 'weather');
             } else {
@@ -299,10 +299,10 @@ function getWeather() {
         if (weatherdata.msg == "Sucess") {
             document.getElementById('refreshwe').style.color = primaryColor;
             document.getElementById('refreshwe').innerHTML = '刷新天气';
+            setSettings('Data', data, 'weather');
+            setSettings('hasData', true, 'weather');
+            console.log('天气数据已经写入缓存');
         }
-        setSettings('Data', data, 'weather');
-        setSettings('hasData', true, 'weather');
-        console.log('天气数据已经写入缓存');
         // console.debug('1:' + weatherdata);
         setWeather();
     }), (function(e) {
@@ -318,7 +318,7 @@ function getWeather() {
             document.getElementById('weather').innerHTML = '每一天都有好心情！<br><i class="fterror">(E-2)' + e + '</i>';
         }
         document.getElementById('refreshwe').style.color = 'red';
-        document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
+        document.getElementById('refreshwe').innerHTML = '刷新天气(加载天气时出错)';
     }));
 }
 
