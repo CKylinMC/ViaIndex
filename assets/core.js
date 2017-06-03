@@ -22,15 +22,16 @@ var isVia = false;
 var firstOpen = true;
 var alwaysTip = false;
 var URLdata = parseURL(location.href);
-//var site = location.href;
+// var site = location.href;
 var site = URLdata.protocol + '://' + URLdata.host; //正式发布
-//var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html';//本地测试
+// var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html'; //本地测试
 var weathercity = 'ip';
 var weathercityname = '地球';
 var weatherapi = 'http://api.yytianqi.com/observe';
 //?city='+weathercity+'&key=m44rbu8ibsv1il13
 var weatherquery = { 'city': weathercity, 'key': 'm44rbu8ibsv1il13', 'random': Math.random() };
 var weatherdata;
+var weatherraw;
 var weatherbody;
 var weatherstatus = 'unload';
 var daynight = '0';
@@ -45,12 +46,12 @@ var settingsPrefix = 'viaindexSettings';
 var cards = new Array('model-welcome', 'model-usage');
 
 
-function getSettings(setting) {
-    return Cookies.get(settingsPrefix + '-' + setting);
+function getSettings(setting, prefix = settingsPrefix) {
+    return Cookies.get(prefix + '-' + setting);
 }
 
-function setSettings(label, value) {
-    return Cookies.set(settingsPrefix + '-' + label, value, { expires: 999 });
+function setSettings(label, value, prefix = settingsPrefix) {
+    return Cookies.set(prefix + '-' + label, value, { expires: 999 });
 }
 
 function unsetSettings(setting) {
@@ -164,7 +165,7 @@ function loadCards() {
         var cardsetting = getSettings('card-' + cards[i]);
         if (cardsetting !== 'closed') {
             document.getElementById(cards[i]).style.display = 'block';
-            console.log(cardsetting);
+            // console.log(cardsetting);
         } else {
             document.getElementById(cards[i]).style.display = 'none';
             console.log('Skip load card: ' + cards[i]);
@@ -269,31 +270,72 @@ function getWeather() {
     weatherstatus = 'loading';
     //console.log(weatherquery);
     httpget(weatherapi, weatherquery, (function(data) {
+        weatherraw = data;
         weatherstatus = 'loaded';
         weatherdata = parseJson(data);
         //console.log(weatherdata);
-        if (weatherstatus == 'failed') { return; }
-        if (weatherdata.msg !== "Sucess") {
-            document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br><i class="fterror">(E-1)' + weatherdata.msg + ' ' + weatherdata.directions + '</i>';
-            document.getElementById('city').innerHTML = '天气预报';
-            return;
+        if (weatherstatus == 'failed') {
+            if (getSettings('hasData', 'weather')) {
+                weatherdata = getSettings('Data', 'weather');
+                console.warn('天气获取失败，读取离线缓存数据。');
+                document.getElementById('refreshwe').style.color = 'red';
+                document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
+            }
+            // return;
         }
-        weathercityname = weatherdata.data.cityName;
-        document.getElementById('city').innerHTML = weathercityname;
-        d = weatherdata.data;
-        var weatherbody = '';
-        weatherbody = weatherbody + '<i class="fterror">最后更新时间：' + d.lastUpdate + '</i>';
-        weatherbody = weatherbody + '<br><h1>' + d.tq + ' ' + d.qw + '℃</h1>';
-        weatherbody = weatherbody + '<img style="display:block" src="imgs/' + d.numtq + '_' + daynight + '.png" width="120px"/>';
-        weatherbody = weatherbody + '<br><p id="weather-detile">' + d.fx + ' ' + d.fl + '<br>当前湿度：' + d.sd + '</p>';
-        document.getElementById('weather').innerHTML = weatherbody;
+        if (weatherdata.msg !== "Sucess") {
+            if (getSettings('hasData', 'weather')) {
+                console.warn('天气获取失败，读取离线缓存数据。');
+                document.getElementById('refreshwe').style.color = 'red';
+                document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
+                console.log('(E-1)' + weatherdata.msg + ' ' + weatherdata.directions);
+                weatherdata = getSettings('Data', 'weather');
+            } else {
+                document.getElementById('weather').innerHTML = '没能找到天气信息袄...<br><i class="fterror">(E-1)' + weatherdata.msg + ' ' + weatherdata.directions + '</i>';
+                document.getElementById('city').innerHTML = '天气预报';
+                return;
+            }
+        }
+        if (weatherdata.msg == "Sucess") {
+            document.getElementById('refreshwe').style.color = primaryColor;
+            document.getElementById('refreshwe').innerHTML = '刷新天气';
+        }
+        setSettings('Data', data, 'weather');
+        setSettings('hasData', true, 'weather');
+        console.log('天气数据已经写入缓存');
+        // console.debug('1:' + weatherdata);
+        setWeather();
     }), (function(e) {
         if (e == "0") e = '网络连接错误';
         weatherstatus = 'failed';
-        console.error('天气获取错误：' + e);
-        document.getElementById('city').innerHTML = '气象万千';
-        document.getElementById('weather').innerHTML = '每一天都有好心情！<br><i class="fterror">(E-2)' + e + '</i>';
+        console.error('天气获取错误：(E-2)' + e);
+        if (getSettings('hasData', 'weather')) {
+            weatherdata = getSettings('Data', 'weather');
+            console.warn('天气获取失败，读取离线缓存数据。');
+            setWeather();
+        } else {
+            document.getElementById('city').innerHTML = '气象万千';
+            document.getElementById('weather').innerHTML = '每一天都有好心情！<br><i class="fterror">(E-2)' + e + '</i>';
+        }
+        document.getElementById('refreshwe').style.color = 'red';
+        document.getElementById('refreshwe').innerHTML += '(加载天气时出错)';
     }));
+}
+
+function setWeather() {
+    if (typeof(weatherdata) !== 'object') {
+        weatherdata = parseJson(weatherdata);
+    }
+    // console.debug('2:' + weatherdata);
+    weathercityname = weatherdata.data.cityName;
+    document.getElementById('city').innerHTML = weathercityname;
+    d = weatherdata.data;
+    var weatherbody = '';
+    weatherbody = weatherbody + '<i class="fterror">最后更新时间：' + d.lastUpdate + '</i>';
+    weatherbody = weatherbody + '<br><h1>' + d.tq + ' ' + d.qw + '℃</h1>';
+    weatherbody = weatherbody + '<img style="display:block" src="imgs/' + d.numtq + '_' + daynight + '.png" width="120px"/>';
+    weatherbody = weatherbody + '<br><p id="weather-detile">' + d.fx + ' ' + d.fl + '<br>当前湿度：' + d.sd + '</p>';
+    document.getElementById('weather').innerHTML = weatherbody;
 }
 
 function resetall() {
@@ -726,8 +768,15 @@ function setbg(url) {
 
 function updatebg() {
     if (checkURL(bgimg)) {
-        document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
-        document.getElementById('header').style.backgroundSize = "cover";
+        asyncload(bgimg, (function() {
+            document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
+            document.getElementById('header').style.backgroundSize = "cover";
+        }), (function() {
+            autohideTip('背景加载失败，使用纯色', 2);
+            setColor(primaryColor);
+        }));
+        // document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
+        // document.getElementById('header').style.backgroundSize = "cover";
     } else {
         document.getElementById('header').style.background = bgimg;
         //setColor(bgimg);
@@ -755,6 +804,30 @@ function getPosZB() {
         if (data.button == 'info') {
             location.href = "http://api.map.baidu.com/lbsapi/getpoint/";
         }
+    });
+}
+
+var async = {};
+async.result = 'unknow';
+async.callback = (function() { console.log('Load success'); });
+async.failback = (function() { console.log('Load failed'); });
+
+function asyncload(url, callback, failback) {
+    if (typeof(callback) == 'function') {
+        async.callback = callback;
+    }
+    if (typeof(failback) == 'function') {
+        async.failback = failback;
+    }
+    var i = new Image();
+    i.src = url;
+    i.onload = (function() {
+        async.result = true;
+        async.callback();
+    });
+    i.onerror = (function() {
+        async.result = false;
+        async.failback();
     });
 }
 
@@ -838,8 +911,15 @@ function init() {
     try {
         firstOpen = false;
         //设置背景
-        document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
-        document.getElementById('header').style.backgroundSize = "cover";
+        asyncload(bgimg, (function() {
+            document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
+            document.getElementById('header').style.backgroundSize = "cover";
+        }), (function() {
+            autohideTip('背景加载失败，使用纯色', 2);
+            setColor(primaryColor);
+        }));
+        // document.getElementById('header').style.background = "url(" + bgimg + ") no-repeat center center";
+        // document.getElementById('header').style.backgroundSize = "cover";
         //设置标题
         UpdateBigTitle();
         document.title = "首页";
