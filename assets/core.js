@@ -358,7 +358,7 @@ function enablehitokoto(){
             enableOneWord = id;
             new Modal({
                 title: '已启用“一言”('+value+')',
-                text: '现在开始，每次刷新将会显示一条一言。搜索框输入":disablehitokoto"可以关闭一言功能。'
+                text: '现在开始，每次刷新将会显示一条一言。搜索框输入":dh"可以关闭一言功能。'
             }).open();
             hitokoto();
         }
@@ -369,11 +369,13 @@ function disablehitokoto(){
     setSettings("hitokotip",true);
     setSettings('Hitokoto',false);
     enableOneWord = false;
-    document.getElementById("card-hitokototip").style.display = "none";
-    document.getElementById("card-hitokoto").style.display = "none";
+    var ht = document.getElementById("card-hitokototip");
+    var h = document.getElementById("card-hitokoto")
+    if(ht) ht.style.display = "none";
+    if(h) h.style.display = "none";
     new Modal({
         title: '停止使用“一言”',
-        text: '此页面已停止显示“一言”卡片。您可以输入":enablehitokoto"来手动开启一言。'
+        text: '此页面已停止显示“一言”卡片。您可以输入":eh"来手动开启一言。'
     }).open();
 }
 
