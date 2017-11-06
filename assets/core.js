@@ -1,5 +1,5 @@
 var ToolsJS;
-if (!ToolsJS == true) {
+if (!ToolsJS === true) {
     console.warn('工具包js未能正常加载，页面可能无法正常显示。');
     console.info('尝试页面初始化...');
     try {
@@ -9,14 +9,20 @@ if (!ToolsJS == true) {
     }
 }
 var d = document;
-
-var version = "1.5";
+var Window = Windowise.Window;
+var Modal = Windowise.Modal;
+var Nft = Windowise.Nft;
+var Push = Windowise.Push;
+var Progress = Windowise.Progress;
+var Input = Windowise.Input;
+var version = "1.6";
 var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
 var bigtitle = 'auto';
 var params = '&';
+var titlemode = 'TIPS';// TIPS | WORDS
 var timeout;
 var isVia = false;
 var firstOpen = true;
@@ -24,7 +30,7 @@ var alwaysTip = false;
 var URLdata = parseURL(location.href);
 // var site = location.href;
 var site = URLdata.protocol + '://' + URLdata.host; //正式发布
-// var site = 'file:///H:/w网站/Projects[]/ViaIndex/index.html'; //本地测试
+// var site = 'file:///F:/w%E7%BD%91%E7%AB%99/Projects[]/ViaIndex-master/index.html'; //本地测试
 var weathercity = 'ip';
 var weathercityname = '地球';
 var weatherapi = 'http://api.yytianqi.com/observe';
@@ -35,6 +41,8 @@ var weatherraw;
 var weatherbody;
 var weatherstatus = 'unload';
 var daynight = '0';
+var enableOneWord = false;
+var onewordapi = 'http://api.hitokoto.cn/';
 var changed = false;
 //var newsdata;
 //var newsapi;
@@ -43,10 +51,11 @@ var historyapi = 'http://www.ipip5.com/today/api.php';
 var historyquery = { 'type': 'json' };
 var urlmode = false;
 var settingsPrefix = 'viaindexSettings';
-var cards = new Array('model-welcome', 'model-usage');
+var cards = ['model-welcome', 'model-usage'];
+var hitokotodata;
 
 
-function getSettings(setting, prefix = settingsPrefix) {
+function getSettings(setting, prefix = settingsPrefix ) {
     return Cookies.get(prefix + '-' + setting);
 }
 
@@ -61,6 +70,8 @@ function unsetSettings(setting) {
         Cookies.remove(settingsPrefix + '-' + 'searchEngine');
         Cookies.remove(settingsPrefix + '-' + 'bigtitle');
         Cookies.remove(settingsPrefix + '-' + 'weathercity');
+        Cookies.remove(settingsPrefix + '-' + 'titlemode');
+        Cookies.remove(settingsPrefix + '-' + 'Hitokoto');
         return true;
     } else {
         return Cookies.remove(settingsPrefix + '-' + setting);
@@ -73,6 +84,8 @@ function loadSettings() {
     var se = getSettings('searchEngine');
     var bt = getSettings('bigtitle');
     var wc = getSettings('weathercity');
+    var tm = getSettings('titlemode');
+    var hk = getSettings('Hitokoto');
     if (pc !== undefined) {
         changed = true;
         setColor(pc);
@@ -95,6 +108,26 @@ function loadSettings() {
         setBigTitle(bt);
         UpdateBigTitle();
         console.log('Title set to ' + bt);
+    }
+    if (tm !== undefined) {
+        if(tm === 'WORDS'){
+            titlemode = tm;
+            changed = true;
+        }
+        console.log('Title mode set to' + tm);
+    }
+    if (hk !== undefined) {
+        if(hk !== false){
+            enableOneWord = hk;
+            changed = true;
+            console.log('Hitokoto enabled');
+        }
+    }
+    if (pc !== undefined) {
+        changed = true;
+        setColor(pc);
+        updateColor();
+        console.log('PrimaryColor set to ' + pc);
     }
     if (wc !== undefined) {
         changed = true;
@@ -140,6 +173,18 @@ function saveAllSettings() {
         modified = true;
     } else {
         unsetSettings('weathercity');
+    }
+    if (titlemode !== "TIPS") {
+        setSettings('titlemode', titlemode);
+        modified = true;
+    } else {
+        unsetSettings('titlemode');
+    }
+    if (enableOneWord !== false) {
+        setSettings('Hitokoto', enableOneWord);
+        modified = true;
+    } else {
+        unsetSettings('Hitokoto');
     }
     if (modified) {
         console.log('Changes saved.');
@@ -219,6 +264,117 @@ function makeQR(value) {
 
 function qrclose() {
     document.getElementById('qrframe').style.display = 'none';
+}
+
+function hitokoto(){
+    var htip = getSettings("hitokotip");
+    var r = Math.ceil(Math.random()*10);
+    if((!htip)&&r>8&&enableOneWord===false){
+        var c = Card("尝试“一言”","hitokototip","<pre>一言网(Hitokoto.cn)创立于2016年，隶属于萌创Team，目前网站主要提供一句话服务。\n" +
+            "\n" +
+            "动漫也好、小说也好、网络也好，不论在哪里，我们总会看到有那么一两个句子能穿透你的心。我们把这些句子汇聚起来，形成一言网络，以传递更多的感动。如果可以，我们希望我们没有停止服务的那一天。\n" +
+            "\n" +
+            "简单来说，一言指的就是一句话，可以是动漫中的台词，也可以是网络上的各种小段子。\n" +
+            "或是感动，或是开心，有或是单纯的回忆。来到这里，留下你所喜欢的那一句句话，与大家分享，这就是一言存在的目的。\n" +
+            "*:本段文本源自hitokoto.us</pre><br>",true);
+        document.getElementById("topmodels").appendChild(c);
+        addButton(c,"现在开启“一言”",'',"enablehitokoto()");
+        addButton(c,"忽略",'',"disablehitokoto()");
+        return;
+    }
+    if(enableOneWord!==false) {
+        httpget(onewordapi, {
+            c: enableOneWord
+        }, function (data) {
+            var json = parseJson(data);
+            hitokotodata = json;
+            var text = "<i style='font-size:large'>" + json.hitokoto + "</i><br><span style='float:right;font-size:small'>—— " + json.from + "</span>";
+            var top = document.getElementById('topmodels');
+            var card = Card('', 'hitokoto', text);
+            top.appendChild(card);
+            addButton(card, "查看这条“一言”", 'seehitokoto', 'goHitokoto()');
+        }, function (data) {
+            console.warn("Cannot get hitokoto: " + data);
+        });
+    }
+}
+
+function goHitokoto(){
+    open("https://hitokoto.cn?id="+hitokotodata.id);
+}
+
+function enablehitokoto(){
+    var m = new Push({
+        type: 'info',
+        content: '请选择您希望的一言类型',
+        position: 'bottom',
+        buttons: [
+            {
+                id: 'all',
+                text: '全部'
+            },
+            {
+                id: 'a',
+                text: '动画'
+            },
+            {
+                id: 'b',
+                text: '漫画'
+            },
+            {
+                id: 'c',
+                text: '游戏'
+            },
+            {
+                id: 'd',
+                text: '小说'
+            },
+            {
+                id: 'e',
+                text: '原创'
+            },
+            {
+                id: 'f',
+                text: '来自网络'
+            },
+            {
+                id: 'g',
+                text: '其他'
+            },
+            {
+                id: 'no',
+                text: '取消'
+            }
+        ],
+        overlay: true
+    });
+    m.open();
+    m.getPromise().then(function(value,id){
+        if(id!=='no'){
+            setSettings("hitokotip",true);
+            var tp = document.getElementById("card-hitokototip");
+            if(tp) tp.style.display = "none";
+            setSettings('Hitokoto',id);
+            enableOneWord = id;
+            new Modal({
+                title: '已启用“一言”('+value+')',
+                text: '现在开始，每次刷新将会显示一条一言。搜索框输入":disablehitokoto"可以关闭一言功能。'
+            }).open();
+            hitokoto();
+        }
+    });
+}
+
+function disablehitokoto(){
+    setSettings("hitokotip",true);
+    setSettings('Hitokoto',false);
+    enableOneWord = false;
+    document.getElementById("card-hitokototip").style.display = "none";
+    document.getElementById("card-hitokoto").style.display = "none";
+    new Modal({
+        title: '停止使用“一言”',
+        text: '此页面已停止显示“一言”卡片。您可以输入":enablehitokoto"来手动开启一言。'
+    }).open();
 }
 
 function getHistory() {
@@ -461,44 +617,45 @@ function cleanInput(text) {
 
 function hourscheck(hour) {
     var tip;
+    var tm = titlemode==='TIPS';
     if (hour >= 4 && hour < 6) {
         //tip = "凌晨";
         daynight = '0';
-        tip = "早起的鸟有虫吃";
+        if(tm) tip = "早起的鸟有虫吃"; else tip = "凌晨";
     } else if (hour >= 6 && hour < 8) {
         //tip = "早上";
         daynight = '0';
-        tip = "新的一天开始了哟~";
+        if(tm) tip = "新的一天开始了哟~"; else tip = "早上";
     } else if (hour >= 8 && hour < 11) {
         daynight = '0';
-        tip = "上午好！";
+        if(tm) tip = "上午好！"; else tip = "上午";
     } else if (hour >= 11 && hour < 12) {
         daynight = '0';
         //tip = "临近中午";
-        tip = "马上就开饭了袄~";
+        if(tm) tip = "马上就开饭了袄~"; else tip = "上午";
     } else if (hour >= 12 && hour < 13) {
         daynight = '0';
         //tip = "中午";
-        tip = "午饭可不能亏了自己";
+        if(tm) tip = "午饭可不能亏了自己"; else tip = "中午";
     } else if (hour >= 13 && hour < 14) {
         daynight = '0';
         //tip = "下午";
-        tip = "何不睡个懒觉";
+        if(tm) tip = "何不睡个懒觉"; else tip = "下午";
     } else if (hour >= 14 && hour < 18) {
         daynight = '0';
         //tip = "下午";
-        tip = "下午好！";
+        if(tm) tip = "下午好！"; else tip = "下午";
     } else if (hour >= 18 && hour < 20) {
         daynight = '0';
         //tip = "傍晚";
-        tip = "傍晚的云彩最美";
+        if(tm) tip = "傍晚的云彩最美"; else tip = "傍晚";
     } else if (hour >= 20 && hour < 22) {
         daynight = '1';
-        tip = "晚上好！";
+        if(tm) tip = "晚上好！"; else tip = "晚上";
     } else if (hour >= 22) {
         daynight = '1';
         //tip = "深夜";
-        tip = "我欲修仙";
+        if(tm) tip = "我欲修仙"; else tip = "深夜";
     }
     return tip;
 }
@@ -506,7 +663,7 @@ function hourscheck(hour) {
 //命令判断
 function checkCommands(k) {
     k = k.toLowerCase();
-    if (k == '-') {
+    if (k === '-') {
         console.info('转到搜索引擎');
         displayTip('正在打开搜索引擎...');
         location.href = searchEngine;
@@ -556,6 +713,12 @@ function checkCommands(k) {
             autohideTip('位置已设置，若获取出错请恢复自动识别')
             changeCity(pos);
             cleanInput();
+            return true;
+        case ':eh':
+            enablehitokoto();
+            return true;
+        case ':dh':
+            disablehitokoto();
             return true;
         case ':showurl':
             var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
@@ -725,7 +888,7 @@ function setColor(color) {
         updateSettings();
         return;
     }
-    if (isEmpty(color) || color == 'auto') {
+    if (isEmpty(color) || color === 'auto') {
         primaryColor = '#1e88e5';
         updateColor();
         updateSettings();
@@ -755,7 +918,7 @@ function setbg(url) {
         updateSettings();
         return;
     }
-    if (isEmpty(url) || url == 'auto') {
+    if (isEmpty(url) || url === 'auto') {
         bgimg = 'http://www.dujin.org/sys/bing/1366.php';
         updatebg();
         updateSettings();
@@ -784,25 +947,31 @@ function updatebg() {
 }
 
 function HowToFixPosErr() {
-    x0p('位置不对的解决方法', '请获取您的坐标或者城市码，然后通过 :setpos 命令和 :reload 命令校正地址！');
+    new Modal({
+        type: 'info',
+        title: '位置不对的解决方法',
+        text: '请获取您的坐标或者城市码，然后通过 :setpos 命令和 :reload 命令校正地址！'
+    }).open();
 }
 
 function getPosZB() {
-    x0p({
+    var m = new Modal({
+        type: 'caution',
         text: '从百度坐标拾取获取你的坐标',
         title: '现在前往？',
         buttons: [{
-                type: 'error',
                 text: '取消',
+                normal: true
             },
             {
-                type: 'info',
                 text: '立刻前往'
             }
         ]
-    }).then(function(data) {
-        if (data.button == 'info') {
-            location.href = "http://api.map.baidu.com/lbsapi/getpoint/";
+    });
+    m.open();
+    m.getPromise().then(function(data) {
+        if (data === '立刻前往') {
+            open("http://api.map.baidu.com/lbsapi/getpoint/");
         }
     });
 }
@@ -813,10 +982,10 @@ async.callback = (function() { console.log('Load success'); });
 async.failback = (function() { console.log('Load failed'); });
 
 function asyncload(url, callback, failback) {
-    if (typeof(callback) == 'function') {
+    if (typeof(callback) === 'function') {
         async.callback = callback;
     }
-    if (typeof(failback) == 'function') {
+    if (typeof(failback) === 'function') {
         async.failback = failback;
     }
     var i = new Image();
@@ -832,21 +1001,23 @@ function asyncload(url, callback, failback) {
 }
 
 function getPosDM() {
-    x0p({
+    var m = new Modal({
+        type: 'caution',
         text: '从YY天气获取你的城市短码',
         title: '现在前往？',
         buttons: [{
-                type: 'error',
                 text: '取消',
+                normal: true
             },
             {
-                type: 'info',
                 text: '立刻前往'
             }
         ]
-    }).then(function(data) {
-        if (data.button == 'info') {
-            location.href = "http://www.yytianqi.com/citys/1.html";
+    });
+    m.open();
+    m.getPromise().then(function(data) {
+        if (data === '立刻前往') {
+            open("http://www.yytianqi.com/citys/1.html");
         }
     });
 }
@@ -881,30 +1052,87 @@ function checkifnew() {
     var loggedver = getSettings('version');
     if (loggedver === undefined) {
         //First time;
-        x0p({
+        new Modal({
             title: '欢迎~~~',
             text: '感谢选择ViaIndex作为你的主页！偷偷告诉你，这个主页的搜索框不简单哦！'
-        });
+        }).open();
     } else if (loggedver > version) {
         //updated;
-        x0p({
+        var m = new Modal({
+            type: 'info',
             title: '主页版本已更新到 v' + version,
-            buttons: [{
-                    type: 'error',
+            text: 'ViaIndex 已经在您的设备中更新。',
+            buttons: [
+                {
+                    id: 'history',
                     text: '更新历史',
+                    normal: true
                 },
                 {
-                    type: 'info',
+                    id: 'yes',
+                    key: 13,
                     text: '确定'
-                }
-            ]
-        }).then(function(data) {
-            if (data.button == 'error') {
-                location.href = "https://github.com/Cansll/ViaIndex/commits/master";
+                },
+            ],
+            keepOverlay: true
+        });
+        m.open();
+        m.getPromise().then(function(data) {
+            if (data == '更新历史') {
+                open("https://github.com/Cansll/ViaIndex/commits/master");
             }
         });
     }
     setSettings('version', version);
+}
+
+function Card(title = "", id = "", content = ""){
+    var e = document.createElement('div');
+    var ch = document.createElement('div');
+    var cc = document.createElement('div');
+    if(id===""||id===" "||id==="."){
+        id = Math.ceil(Math.random(11111,99999)*100000);
+    }
+    id = "card-"+id;
+    e.id = id;
+    e.className = 'card';
+    ch.className = 'card-header';
+    ch.id = id + '-header';
+    ch.innerHTML = title;
+    cc.className = 'card-content';
+    cc.innerHTML = content;
+    cc.id = id + '-content';
+        var span = document.createElement('span');
+        span.className = 'menubutton';
+        span.id = id + '-buttons';
+        cc.innerHTML+= "<br>";
+        cc.appendChild(span);
+    e.appendChild(ch);
+    e.appendChild(cc);
+    return e;
+}
+
+function addButton(card = false, text = '', id = '', onclick = 'return false;', eclass = ''){
+    if(!card) return false;
+    var mainid = card.id;
+    var buttonspan = document.getElementById(mainid + "-buttons");
+    if(id===""||id===" "||id==="."){
+        id = Math.ceil(Math.random(11111,99999)*100000);
+    }
+    buttonspan.appendChild(CardButton(mainid + "-buttons" + id, onclick, text, eclass));
+    return true;
+}
+
+function CardButton(id = '', onclick = 'return false;', text = '', eclass = ''){
+    var b = document.createElement('button');
+    if(id===""||id===" "||id==="."){
+        id = 'button' + Math.ceil(Math.random(11111,99999)*100000);
+    }
+    b.id = id;
+    b.onclick = function(){eval(onclick)};
+    b.innerHTML = text;
+    b.className = eclass;
+    return b;
 }
 
 function init() {
@@ -935,13 +1163,14 @@ function init() {
         //getHistory();
         loadFavicons();
         setSearchIco();
+        hitokoto();
         checkifnew();
         console.log('Loaded.');
     } catch (e) {
         console.error('初始化页面时出错：' + e.message);
     }
 }
-if (!ToolsJS == true) {
+if (!ToolsJS === true) {
     console.warn('工具包加载失败，document.ready函数已禁用。');
 } else {
     document.ready(init());
