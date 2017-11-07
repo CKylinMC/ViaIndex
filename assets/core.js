@@ -16,6 +16,7 @@ var Push = Windowise.Push;
 var Progress = Windowise.Progress;
 var Input = Windowise.Input;
 var version = "1.6";
+var subversion = ".4 dev";
 var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
@@ -28,9 +29,27 @@ var isVia = false;
 var firstOpen = true;
 var alwaysTip = false;
 var URLdata = parseURL(location.href);
-// var site = location.href;
-var site = URLdata.protocol + '://' + URLdata.host; //正式发布
-// var site = 'file:///F:/w%E7%BD%91%E7%AB%99/Projects[]/ViaIndex-master/index.html'; //本地测试
+
+if(location.protocol==='file:'){
+    var pagemode = "FileView Test";
+    var site = location.href;
+    new Push({
+        type: 'info',
+        content: '文件浏览模式，所有设置将丢失',
+        position: 'bottom'
+    }).open();
+}else if(location.host !== 'via.ckylin-mc.cn'){
+    var pagemode = "Local Test";
+    var site = URLdata.protocol + '://' + URLdata.host;
+    new Push({
+        type: 'info',
+        content: '测试模式：Ver '+version+subversion,
+        position: 'bottom'
+    }).open();
+}else{
+    var pagemode = "Released";
+    var site = URLdata.protocol + '://' + URLdata.host;
+}
 var weathercity = 'ip';
 var weathercityname = '地球';
 var weatherapi = 'http://api.yytianqi.com/observe';
@@ -41,7 +60,7 @@ var weatherraw;
 var weatherbody;
 var weatherstatus = 'unload';
 var daynight = '0';
-var enableOneWord = false;
+var enableOneWord = "false";
 var onewordapi = 'http://api.hitokoto.cn/';
 var changed = false;
 //var newsdata;
@@ -53,6 +72,11 @@ var urlmode = false;
 var settingsPrefix = 'viaindexSettings';
 var cards = ['model-welcome', 'model-usage'];
 var hitokotodata;
+var enableNews = "false";
+var newsapi = 'http://api.dagoogle.cn/news/get-news';
+var newsdata;
+var newscontent;
+var newspage;
 
 
 function getSettings(setting, prefix = settingsPrefix ) {
@@ -86,6 +110,7 @@ function loadSettings() {
     var wc = getSettings('weathercity');
     var tm = getSettings('titlemode');
     var hk = getSettings('Hitokoto');
+    var ne = getSettings('News');
     if (pc !== undefined) {
         changed = true;
         setColor(pc);
@@ -117,10 +142,16 @@ function loadSettings() {
         console.log('Title mode set to' + tm);
     }
     if (hk !== undefined) {
-        if(hk !== false){
+        if(hk != "false"){
             enableOneWord = hk;
             changed = true;
             console.log('Hitokoto enabled');
+        }
+    }
+    if (ne !== undefined) {
+        if(ne != "false"){
+            enableNews = ne;
+            changed = true;
         }
     }
     if (pc !== undefined) {
@@ -180,11 +211,17 @@ function saveAllSettings() {
     } else {
         unsetSettings('titlemode');
     }
-    if (enableOneWord !== false) {
+    if (enableOneWord != "false") {
         setSettings('Hitokoto', enableOneWord);
         modified = true;
     } else {
         unsetSettings('Hitokoto');
+    }
+    if (enableNews != "false") {
+        setSettings('News', enableNews);
+        modified = true;
+    } else {
+        unsetSettings('News');
     }
     if (modified) {
         console.log('Changes saved.');
@@ -269,20 +306,20 @@ function qrclose() {
 function hitokoto(){
     var htip = getSettings("hitokotip");
     var r = Math.ceil(Math.random()*10);
-    if((!htip)&&r>8&&enableOneWord===false){
-        var c = Card("尝试“一言”","hitokototip","<pre>一言网(Hitokoto.cn)创立于2016年，隶属于萌创Team，目前网站主要提供一句话服务。\n" +
-            "\n" +
-            "动漫也好、小说也好、网络也好，不论在哪里，我们总会看到有那么一两个句子能穿透你的心。我们把这些句子汇聚起来，形成一言网络，以传递更多的感动。如果可以，我们希望我们没有停止服务的那一天。\n" +
-            "\n" +
-            "简单来说，一言指的就是一句话，可以是动漫中的台词，也可以是网络上的各种小段子。\n" +
-            "或是感动，或是开心，有或是单纯的回忆。来到这里，留下你所喜欢的那一句句话，与大家分享，这就是一言存在的目的。\n" +
-            "*:本段文本源自hitokoto.us</pre><br>",true);
+    if((!htip)&&r>8&&enableOneWord=="false"){
+        var c = Card("尝试“一言”","hitokototip","一言网(Hitokoto.cn)创立于2016年，隶属于萌创Team，目前网站主要提供一句话服务。<br>" +
+            "<br>" +
+            "动漫也好、小说也好、网络也好，不论在哪里，我们总会看到有那么一两个句子能穿透你的心。我们把这些句子汇聚起来，形成一言网络，以传递更多的感动。如果可以，我们希望我们没有停止服务的那一天。<br>" +
+            "<br>" +
+            "简单来说，一言指的就是一句话，可以是动漫中的台词，也可以是网络上的各种小段子。<br>" +
+            "或是感动，或是开心，有或是单纯的回忆。来到这里，留下你所喜欢的那一句句话，与大家分享，这就是一言存在的目的。<br>" +
+            "*:本段文本源自hitokoto.us<br>",true);
         document.getElementById("topmodels").appendChild(c);
         addButton(c,"现在开启“一言”",'',"enablehitokoto()");
         addButton(c,"忽略",'',"disablehitokoto()");
         return;
     }
-    if(enableOneWord!==false) {
+    if(enableOneWord!=="false") {
         httpget(onewordapi, {
             c: enableOneWord
         }, function (data) {
@@ -290,13 +327,36 @@ function hitokoto(){
             hitokotodata = json;
             var text = "<i style='font-size:large'>" + json.hitokoto + "</i><br><span style='float:right;font-size:small'>—— " + json.from + "</span>";
             var top = document.getElementById('topmodels');
+            var frame = document.getElementById('hitokotoCard');
+            if(!frame){
+                frame = document.createElement('div');
+                frame.id = 'hitokotoCard';
+                top.appendChild(frame);
+            }
+            frame.innerHTML = '';
             var card = Card('', 'hitokoto', text);
-            top.appendChild(card);
-            addButton(card, "查看这条“一言”", 'seehitokoto', 'goHitokoto()');
+            frame.appendChild(card);
+            addButton(card, "<i class='fa fa-cog'> </i> 设置", 'sethitokoto', 'run(":eh")');
+            addButton(card, "<i class='fa fa-rotate-right'> </i> 刷新", 'gethitokoto', 'newHitokoto(this)');
+            addButton(card, "<i class='fa fa-share-square-o'> </i> 查看", 'seehitokoto', 'goHitokoto()');
         }, function (data) {
             console.warn("Cannot get hitokoto: " + data);
         });
     }
+}
+
+function newHitokoto(e){
+    if(e){
+        e.innerHTML = "<i class='fa fa-rotate-right'> </i> 正在刷新...";
+        e.style.color = '#9e9e9e';
+        e.disabled = true;
+        setInterval(function(){
+            e.innerHTML = "<i class='fa fa-rotate-right'> </i> 再次刷新";
+            e.disabled = false;
+            e.style.color = '#e91e63';
+        },10000);
+    }
+    hitokoto();
 }
 
 function goHitokoto(){
@@ -343,24 +403,26 @@ function enablehitokoto(){
             },
             {
                 id: 'no',
-                text: '取消'
+                text: '停用'
             }
         ],
         overlay: true
     });
     m.open();
     m.getPromise().then(function(value,id){
-        if(id!=='no'){
+        if(value!=='no'){
             setSettings("hitokotip",true);
             var tp = document.getElementById("card-hitokototip");
             if(tp) tp.style.display = "none";
-            setSettings('Hitokoto',id);
-            enableOneWord = id;
+            setSettings('Hitokoto',value);
+            enableOneWord = value;
             new Modal({
                 title: '已启用“一言”('+value+')',
                 text: '现在开始，每次刷新将会显示一条一言。搜索框输入":dh"可以关闭一言功能。'
             }).open();
             hitokoto();
+        }else{
+            disablehitokoto();
         }
     });
 }
@@ -368,9 +430,9 @@ function enablehitokoto(){
 function disablehitokoto(){
     setSettings("hitokotip",true);
     setSettings('Hitokoto',false);
-    enableOneWord = false;
+    enableOneWord = "false";
     var ht = document.getElementById("card-hitokototip");
-    var h = document.getElementById("card-hitokoto")
+    var h = document.getElementById("card-hitokoto");
     if(ht) ht.style.display = "none";
     if(h) h.style.display = "none";
     new Modal({
@@ -417,6 +479,111 @@ function getHistory() {
         document.getElementById('history-content').innerHTML = historybody;
         return;
     }));
+}
+
+function News(){
+    if(enableNews=="false") return;
+    var top = document.getElementById('topmodels');
+    var frame = document.getElementById('newsmodel');
+    if(!frame){
+        frame = document.createElement('div');
+        frame.id = 'newsmodel';
+        top.appendChild(frame);
+    }
+    frame.innerHTML = '';
+    getNewsContents();
+    // debugger;
+    var card = Card('每日热点','newscard',newscontent);
+    frame.appendChild(card);
+    addButton(card, "<i class='fa fa-cog'> </i> 设置", 'setnews', 'run(":newssettings")');
+    addButton(card, "<i class='fa fa-arrow-right'> </i> 下一页", 'setnews', 'newsPageUp();News()');
+
+}
+
+function getNewsContents(){
+    if(!newspage || newspage == 0) newspage = 1;
+    jsonp(newsapi, {
+        'pagesize': 5,
+        'page': newspage,
+        'justList': 0
+    },function(data){
+        // debugger;
+        // newsdata = parseJson(data);
+        newsdata = data;
+        if(newsdata.status!='200'){
+            newsdata = '';
+            console.warn('[News] parse error.');
+            return '<center>新闻获取失败</center>';
+        }
+        newscontent = '';
+        var divframe = document.createElement('div');
+        for(var i = 0; i < newsdata.count; i++){
+            var li = document.createElement('li');
+            li.className = 'newsItem';
+            li.innerHTML = '<a onclick="getNewsDetails('+i+')">'+newsdata.data[i].title+'</a>';
+            divframe.appendChild(li);
+        }
+        newscontent = getDomString(divframe);
+        // debugger;
+    });
+    // httpget(newsapi, {
+    //     'pagesize': 5,
+    //     'page': newspage,
+    //     'justList': 0
+    // },function(data){
+    //     debugger;
+    //     newsdata = parseJson(data);
+    //     if(newsdata.status!='200'){
+    //         newsdata = '';
+    //         console.warn('[News] parse error.');
+    //         return '<center>新闻获取失败</center>';
+    //     }
+    //     newscontent = '';
+    //     var divframe = document.createElement('div');
+    //     for(var i = 0; i < newsdata.count; i++){
+    //         var li = document.createElement('li');
+    //         li.className = 'newsItem';
+    //         li.innerHTML = '<a onclick="getNewsDetails('+i+')">'+newsdata.data[i].title+'</a>';
+    //         divframe.appendChild(li);
+    //     }
+    //     newscontent = getDomString(divframe);
+    // },function(data){
+    //     console.warn('[News] Cannot get news: '+data);
+    //     return '<center>新闻获取失败</center>';
+    // });
+    return newscontent;
+}
+
+function getNewsDetails(id){
+    var n = id + 1;
+    if(n>newsdata.count){
+        console.error("Wrong news ID number");
+        return;
+    }
+
+    var frame = document.createElement('div');
+    frame.style.maxHeight = "30vh";
+    frame.style.maxWidth = "90vw";
+    frame.style.overflow = 'auto';
+    frame.style.padding = "6px";
+    frame.innerHTML = newsdata.data[id].content;
+
+    new Modal({
+        title: '新闻详情',
+        text: newsdata.data[id].title,
+        content: frame
+    }).open();
+}
+
+function genNewsCard(){
+    var c = getNewsContents();
+    return Card('每日热点','news',c);
+}
+
+function newsPageUp(){
+    if(!newspage) newspage = 1;
+    else newspage++;
+    return newspage;
 }
 
 function getWeather() {
@@ -503,6 +670,12 @@ function resetall() {
     var bigtitle = 'auto';
     var params = '&';
 
+}
+
+function getDomString(dom){
+    var a = document.createElement('div');
+    a.appendChild(dom);
+    return a.innerHTML;
 }
 
 function coverSettings() {
@@ -662,6 +835,11 @@ function hourscheck(hour) {
     return tip;
 }
 
+function run(k){
+    console.log("Running command: "+k);
+    checkCommands(k);
+}
+
 //命令判断
 function checkCommands(k) {
     k = k.toLowerCase();
@@ -721,6 +899,22 @@ function checkCommands(k) {
             return true;
         case ':dh':
             disablehitokoto();
+            return true;
+        case ':enews':
+            setSettings('News',true);
+            enableNews = true;
+            News();
+            return true;
+        case ':dnews':
+            setSettings('News',false);
+            enableNews = "false";
+            News();
+            return true;
+        case ':newssettings':
+            new Modal({
+                type: 'info',
+                title: '此功能仍在开发中，请使用:enews和:dnews开启和关闭新闻功能'
+            }).open();
             return true;
         case ':showurl':
             var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
@@ -1104,11 +1298,11 @@ function Card(title = "", id = "", content = ""){
     cc.className = 'card-content';
     cc.innerHTML = content;
     cc.id = id + '-content';
-        var span = document.createElement('span');
-        span.className = 'menubutton';
-        span.id = id + '-buttons';
-        cc.innerHTML+= "<br>";
-        cc.appendChild(span);
+    var span = document.createElement('span');
+    span.className = 'menubutton';
+    span.id = id + '-buttons';
+    cc.innerHTML+= "<br>";
+    cc.appendChild(span);
     e.appendChild(ch);
     e.appendChild(cc);
     return e;
@@ -1166,6 +1360,7 @@ function init() {
         loadFavicons();
         setSearchIco();
         hitokoto();
+        News();
         checkifnew();
         console.log('Loaded.');
     } catch (e) {
