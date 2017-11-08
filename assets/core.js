@@ -1025,6 +1025,10 @@ function checkCommands(k) {
             cleanInput();
             newsCate();
             return true;
+        case ':settings':
+            cleanInput();
+            showSettings();
+            return true;
         case ':showurl':
             var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
             cleanInput();
@@ -1391,6 +1395,34 @@ function checkifnew() {
     setSettings('version', version);
 }
 
+function showSettings(){
+    // debugger;
+    var frame = document.createElement('div');
+    frame.appendChild(document.createElement('br'));
+    var ButtonsSetTitle = CardButton('settitle',"run(':settitle')","设置标题",'');
+    var ButtonsSetColor = CardButton('setcolor',"run(:setcolor)","设置主题颜色",'');
+    var ButtonsSetBg = CardButton('setbg',"run(:setbg)","设置头图或头部背景颜色",'');
+    var ButtonsGetBg = CardButton('getbg',"run(:getbg)","查看当前背景地址",'');
+    var ButtonsSetHitokoto = CardButton('sethito',"run(:eh)","启停一言卡片或选择分类",'');
+    var ButtonsSetNews = CardButton('setnews',"run(:newssettings)","启停新闻卡片或选择分类",'');
+    frame.appendChild(ButtonsSetTitle);
+    frame.appendChild(ButtonsSetColor);
+    frame.appendChild(ButtonsSetBg);
+    frame.appendChild(ButtonsGetBg);
+    frame.appendChild(ButtonsSetHitokoto);
+    frame.appendChild(ButtonsSetNews);
+    closeSettings();
+    var card = Card("选项列表",'settings',frame);
+    document.getElementById('topmodels').appendChild(card);
+    addButton(card,"关闭",'closeSettings',"closeSettings()",'');
+}
+function closeSettings(){
+    var a;
+    if(a = document.getElementById('card-settings')){
+        document.getElementById('topmodels').removeChild(a);
+    }
+}
+
 function Card(title = "", id = "", content = ""){
     var e = document.createElement('div');
     var ch = document.createElement('div');
@@ -1405,7 +1437,8 @@ function Card(title = "", id = "", content = ""){
     ch.id = id + '-header';
     ch.innerHTML = title;
     cc.className = 'card-content';
-    cc.innerHTML = content;
+    if(typeof(content)==="object") cc.appendChild(content);
+    else cc.innerHTML = content;
     cc.id = id + '-content';
     var span = document.createElement('span');
     span.className = 'menubutton';
@@ -1429,6 +1462,7 @@ function addButton(card = false, text = '', id = '', onclick = 'return false;', 
 }
 
 function CardButton(id = '', onclick = 'return false;', text = '', eclass = ''){
+    debugger;
     var b = document.createElement('button');
     if(id===""||id===" "||id==="."){
         id = 'button' + Math.ceil(Math.random(11111,99999)*100000);
