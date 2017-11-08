@@ -1462,7 +1462,7 @@ function addButton(card = false, text = '', id = '', onclick = 'return false;', 
 }
 
 function CardButton(id = '', onclick = 'return false;', text = '', eclass = ''){
-    debugger;
+    // debugger;
     var b = document.createElement('button');
     if(id===""||id===" "||id==="."){
         id = 'button' + Math.ceil(Math.random(11111,99999)*100000);
