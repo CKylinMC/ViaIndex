@@ -77,6 +77,7 @@ var newsapi = 'http://api.dagoogle.cn/news/get-news';
 var newsdata;
 var newscontent;
 var newspage;
+var newscate = '';
 
 
 function getSettings(setting, prefix = settingsPrefix ) {
@@ -96,6 +97,8 @@ function unsetSettings(setting) {
         Cookies.remove(settingsPrefix + '-' + 'weathercity');
         Cookies.remove(settingsPrefix + '-' + 'titlemode');
         Cookies.remove(settingsPrefix + '-' + 'Hitokoto');
+        Cookies.remove(settingsPrefix + '-' + 'News');
+        Cookies.remove(settingsPrefix + '-' + 'NewsCate');
         return true;
     } else {
         return Cookies.remove(settingsPrefix + '-' + setting);
@@ -111,6 +114,7 @@ function loadSettings() {
     var tm = getSettings('titlemode');
     var hk = getSettings('Hitokoto');
     var ne = getSettings('News');
+    var nc = getSettings('NewsCate');
     if (pc !== undefined) {
         changed = true;
         setColor(pc);
@@ -153,6 +157,10 @@ function loadSettings() {
             enableNews = ne;
             changed = true;
         }
+    }
+    if (nc) {
+            newscate = nc;
+            changed = true;
     }
     if (pc !== undefined) {
         changed = true;
@@ -222,6 +230,12 @@ function saveAllSettings() {
         modified = true;
     } else {
         unsetSettings('News');
+    }
+    if (newscate) {
+        setSettings('NewsCate', newscate);
+        modified = true;
+    } else {
+        unsetSettings('NewsCate');
     }
     if (modified) {
         console.log('Changes saved.');
@@ -350,7 +364,7 @@ function newHitokoto(e){
         e.innerHTML = "<i class='fa fa-rotate-right'> </i> 正在刷新...";
         e.style.color = '#9e9e9e';
         e.disabled = true;
-        setInterval(function(){
+        setTimeout(function(){
             e.innerHTML = "<i class='fa fa-rotate-right'> </i> 再次刷新";
             e.disabled = false;
             e.style.color = '#e91e63';
@@ -481,8 +495,38 @@ function getHistory() {
     }));
 }
 
-function News(){
-    if(enableNews=="false") return;
+function News(fromButton = false){
+    if(enableNews=="false") {
+        if(!fromButton) return;
+        var modal = new Modal({
+            type: 'caution',
+            title: '新闻已被停用',
+            text: '您已经停用了新闻卡片，是否重新打开？',
+            buttons: [
+                {
+                    id: 'no',
+                    key: 27,
+                    text: '立刻停用',
+                    normal: true
+                },
+                {
+                    id: 'yes',
+                    key: 27,
+                    text: '重新启用'
+                }
+            ],
+            keepOverlay: true
+        });
+        modal.open();
+        modal.getPromise().then(function(value){
+            if(value=="no"){
+                location.reload();
+            }else{
+                newsCate();
+            }
+        });
+        return;
+    }
     var top = document.getElementById('topmodels');
     var frame = document.getElementById('newsmodel');
     if(!frame){
@@ -490,22 +534,107 @@ function News(){
         frame.id = 'newsmodel';
         top.appendChild(frame);
     }
-    frame.innerHTML = '';
+    // frame.innerHTML = '';
+    var waitcard = Card('正在加载每日热点...','newscardwait',"");
+    frame.innerHTML = getDomString(waitcard);
     getNewsContents();
     // debugger;
-    var card = Card('每日热点','newscard',newscontent);
-    frame.appendChild(card);
-    addButton(card, "<i class='fa fa-cog'> </i> 设置", 'setnews', 'run(":newssettings")');
-    addButton(card, "<i class='fa fa-arrow-right'> </i> 下一页", 'setnews', 'newsPageUp();News()');
+    setTimeout(function(){
+        // if(!newscontent) frame.innerHTML = '';
+        var card = Card('每日热点','newscard',newscontent);
+        frame.innerHTML = '';
+        frame.appendChild(card);
+        addButton(card, "<i class='fa fa-cog'> </i> 设置", 'setnews', 'newsCate(true)');
+        addButton(card, "<i class='fa fa-arrow-left'> </i> 上一页", 'setnews', 'newsPerviousPage();News(true)');
+        addButton(card, "<i class='fa fa-arrow-right'> </i> 下一页", 'setnews', 'newsNextPage();News(true)');
+    },500);
 
+}
+
+function newsCate(fromSettings = false){
+
+    var m = new Push({
+        type: 'info',
+        content: '选择新闻类别',
+        position: 'bottom',
+        buttons: [
+            {
+                id: 'nocate',
+                text: '全部'
+            },
+            {
+                id: '1',
+                text: '头条'
+            },
+            {
+                id: '2',
+                text: '娱乐'
+            },
+            {
+                id: '3',
+                text: '军事'
+            },
+            {
+                id: '4',
+                text: '汽车'
+            },
+            {
+                id: '5',
+                text: '财经'
+            },
+            {
+                id: '6',
+                text: '笑话'
+            },
+            {
+                id: '7',
+                text: '体育'
+            },
+            {
+                id: '8',
+                text: '科技'
+            },
+            {
+                id: 'no',
+                text: '停用'
+            }
+        ],
+        overlay: true
+    });
+    m.open();
+    m.getPromise().then(function(value){
+        var cate = false;
+        if(value!="no"){
+            cate = value;
+        }
+
+        if(cate!==false){
+            setSettings("NewsCate",cate);
+            newscate = cate;
+            run(':enews');
+            if(!fromSettings) new Modal({
+                title: '已启用“新闻”',
+                text: '新闻来源于“大谷哥”，本站不对内容负责。'
+            }).open();
+        }else{
+            run(':dnews');
+            new Modal({
+                title: '已停用“新闻”',
+                text: '刷新后新闻卡片将消失。使用“:enews”再次打开新闻卡片。'
+            }).open();
+        }
+    });
 }
 
 function getNewsContents(){
     if(!newspage || newspage == 0) newspage = 1;
+    var cate = newscate;
+    if((!cate)||cate=="nocate") cate = '';
     jsonp(newsapi, {
         'pagesize': 5,
         'page': newspage,
-        'justList': 0
+        'justList': 0,
+        'tableNum': cate
     },function(data){
         // debugger;
         // newsdata = parseJson(data);
@@ -526,31 +655,6 @@ function getNewsContents(){
         newscontent = getDomString(divframe);
         // debugger;
     });
-    // httpget(newsapi, {
-    //     'pagesize': 5,
-    //     'page': newspage,
-    //     'justList': 0
-    // },function(data){
-    //     debugger;
-    //     newsdata = parseJson(data);
-    //     if(newsdata.status!='200'){
-    //         newsdata = '';
-    //         console.warn('[News] parse error.');
-    //         return '<center>新闻获取失败</center>';
-    //     }
-    //     newscontent = '';
-    //     var divframe = document.createElement('div');
-    //     for(var i = 0; i < newsdata.count; i++){
-    //         var li = document.createElement('li');
-    //         li.className = 'newsItem';
-    //         li.innerHTML = '<a onclick="getNewsDetails('+i+')">'+newsdata.data[i].title+'</a>';
-    //         divframe.appendChild(li);
-    //     }
-    //     newscontent = getDomString(divframe);
-    // },function(data){
-    //     console.warn('[News] Cannot get news: '+data);
-    //     return '<center>新闻获取失败</center>';
-    // });
     return newscontent;
 }
 
@@ -580,9 +684,16 @@ function genNewsCard(){
     return Card('每日热点','news',c);
 }
 
-function newsPageUp(){
+function newsNextPage(){
     if(!newspage) newspage = 1;
     else newspage++;
+    return newspage;
+}
+
+function newsPerviousPage(){
+    if(!newspage) newspage = 1;
+    if(newspage<=1) return 1;
+    else newspage--;
     return newspage;
 }
 
@@ -911,10 +1022,8 @@ function checkCommands(k) {
             News();
             return true;
         case ':newssettings':
-            new Modal({
-                type: 'info',
-                title: '此功能仍在开发中，请使用:enews和:dnews开启和关闭新闻功能'
-            }).open();
+            cleanInput();
+            newsCate();
             return true;
         case ':showurl':
             var a = prompt('当前所有设置保存在这个URL中，收藏即可保存设置', genSettingsUrl());
@@ -1315,7 +1424,7 @@ function addButton(card = false, text = '', id = '', onclick = 'return false;', 
     if(id===""||id===" "||id==="."){
         id = Math.ceil(Math.random(11111,99999)*100000);
     }
-    buttonspan.appendChild(CardButton(mainid + "-buttons" + id, onclick, text, eclass));
+    buttonspan.appendChild(CardButton(mainid + "-buttons-" + id, onclick, text, eclass));
     return true;
 }
 
@@ -1329,6 +1438,17 @@ function CardButton(id = '', onclick = 'return false;', text = '', eclass = ''){
     b.innerHTML = text;
     b.className = eclass;
     return b;
+}
+
+function screenTiper(){
+    if(window.screen.width>1000){
+        if(pagemode!=='Released') return;
+        new Modal({
+            type: 'caution',
+            title: '请在手机中竖屏使用',
+            text: '本页面是为竖屏手机端定制的界面，没有对电脑等其他平台设备进行适配。为了获得最好的使用体验，请使用手机竖屏打开此页面！'
+        }).open();
+    }
 }
 
 function init() {
@@ -1362,6 +1482,7 @@ function init() {
         hitokoto();
         News();
         checkifnew();
+        screenTiper();
         console.log('Loaded.');
     } catch (e) {
         console.error('初始化页面时出错：' + e.message);
