@@ -16,7 +16,7 @@ var Push = Windowise.Push;
 var Progress = Windowise.Progress;
 var Input = Windowise.Input;
 var version = "1.6";
-var subversion = ".4 dev";
+var subversion = ".6 dev";
 var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
@@ -1044,7 +1044,7 @@ function getKugouMusicDetail(id){
     var msg = new Modal({
         title: d.filename,
         text: '歌手：'+d.singername+'<br>专辑：'+d.album_name,
-        content: "<audio controls='true' src='"+d.url+"'></audio><br><center><img src='"+d.headpic+"' max-width='120'></img><br>是否下载？</center>",
+        content: "<audio controls='true' src='"+d.url+"'></audio><br><center>是否下载？</center>",
         buttons: [
             {
                 id: 'no',
