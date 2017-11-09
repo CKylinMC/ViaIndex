@@ -207,7 +207,7 @@ function saveAllSettings() {
     } else {
         unsetSettings('bgimg');
     }
-    if (searchEngine !== "https://www.baidu.com/s?wd=") {
+    if (searchEngine !== "https://www.baidu.com/s?wd=" && specialSearch==false) {
         setSettings('searchEngine', searchEngine);
         modified = true;
     } else {
