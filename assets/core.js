@@ -21,6 +21,8 @@ var c = cookie = Cookies;
 var primaryColor = "#1e88e5";
 var bgimg = 'http://www.dujin.org/sys/bing/1366.php';
 var searchEngine = 'https://www.baidu.com/s?wd=';
+var kugoumusicsearchapi = 'http://api.dagoogle.cn/music/search';
+var kugoumusicsearchdata;
 var bigtitle = 'auto';
 var params = '&';
 var titlemode = 'TIPS';// TIPS | WORDS
@@ -78,6 +80,8 @@ var newsdata;
 var newscontent;
 var newspage;
 var newscate = '';
+var newstip = "false";
+var specialSearch = false;
 
 
 function getSettings(setting, prefix = settingsPrefix ) {
@@ -99,6 +103,7 @@ function unsetSettings(setting) {
         Cookies.remove(settingsPrefix + '-' + 'Hitokoto');
         Cookies.remove(settingsPrefix + '-' + 'News');
         Cookies.remove(settingsPrefix + '-' + 'NewsCate');
+        Cookies.remove(settingsPrefix + '-' + 'newstip');
         return true;
     } else {
         return Cookies.remove(settingsPrefix + '-' + setting);
@@ -115,6 +120,7 @@ function loadSettings() {
     var hk = getSettings('Hitokoto');
     var ne = getSettings('News');
     var nc = getSettings('NewsCate');
+    var nt = getSettings('newstip');
     if (pc !== undefined) {
         changed = true;
         setColor(pc);
@@ -155,6 +161,12 @@ function loadSettings() {
     if (ne !== undefined) {
         if(ne != "false"){
             enableNews = ne;
+            changed = true;
+        }
+    }
+    if (nt !== undefined) {
+        if(nt != "false"){
+            newstip = nt;
             changed = true;
         }
     }
@@ -231,6 +243,12 @@ function saveAllSettings() {
     } else {
         unsetSettings('News');
     }
+    if (newstip != "false") {
+        setSettings('newstip', newstip);
+        modified = true;
+    } else {
+        unsetSettings('newstip');
+    }
     if (newscate) {
         setSettings('NewsCate', newscate);
         modified = true;
@@ -271,7 +289,7 @@ function loadCards() {
 }
 
 function setSearchIco() {
-    document.getElementById('search-button').style.display = 'block'
+    document.getElementById('search-button').style.display = 'block';
     document.getElementById('search-button').style.opacity = "0";
     document.getElementById('search-button').style.filter = "alpha(opacity=0)";
     var se = searchEngine;
@@ -279,6 +297,7 @@ function setSearchIco() {
     var gg = 'https://www.google.com.hk/search?q=';
     var fy = 'http://m.iciba.com/';
     var map = 'http://map.sogou.com/#&lq=';
+    var music = 'kugoumusicsearch';
     setTimeout((function() {
         if (se == bd) {
             document.getElementById('search-button').className = 'fa fa-search';
@@ -288,6 +307,8 @@ function setSearchIco() {
             document.getElementById('search-button').className = 'fa fa-language';
         } else if (se == map) {
             document.getElementById('search-button').className = 'fa fa-map';
+        } else if (se == music) {
+            document.getElementById('search-button').className = 'fa fa-music';
         } else {
             document.getElementById('search-button').className = 'fa';
             document.getElementById('search-button').innerHTML = '';
@@ -549,6 +570,41 @@ function News(fromButton = false){
         addButton(card, "<i class='fa fa-arrow-right'> </i> 下一页", 'setnews', 'newsNextPage();News(true)');
     },500);
 
+}
+
+function newsTips(){
+    var r = Math.ceil(Math.random()*10);
+    if(enableNews=="false"&&r>8&&newstip=="false"){
+        var top = document.getElementById('topmodels');
+        var frame = document.getElementById('newsmodel');
+        if(!frame){
+            frame = document.createElement('div');
+            frame.id = 'newsmodel';
+            top.appendChild(frame);
+        }
+        if(frame.innerHTML===""){
+            var card = Card("尝试正在测试中的“新闻”卡片",'newstips',"邀请您测试我们的新功能 —— “新闻”卡片！<br><br>" +
+                "每个新闻都只有一句话，您可以点开新闻看它的详细描述。您可以选择您想要的新闻分类。<br><br>" +
+                "<b>请注意新闻来源是<a href='http://showdoc.dagoogle.cn/index.php/6'>大谷哥新闻API</a>，本站不对新" +
+                "闻内容负责，也不保证新闻质量以及合法性。如果有任何不妥请立刻在Github中发起issue联系我！" +
+                "如果不希望看到预料外的内容，请不要开启此测试功能！</b>(Github地址在页面最下方点击'ViaIndex'即可)");
+            frame.appendChild(card);
+            addButton(card, "开启新闻", 'opennews', 'hideNewsTips();newsCate()');
+            addButton(card, "不再显示", 'closenews', 'hideNewsTips()');
+        }
+    }
+    if(enableNews!="false"){
+        News();
+    }
+}
+
+function hideNewsTips(){
+    var frame = document.getElementById('newsmodel');
+    if(frame){
+        frame.innerHTML = '';
+    }
+    newstip = "true";
+    saveAllSettings();
 }
 
 function newsCate(fromSettings = false){
@@ -878,6 +934,11 @@ function changeCity(city) {
     return;
 }
 
+function search(word = ''){
+    document.getElementById('search-input').value = word;
+    searchnow();
+}
+
 function searchnow() {
     //触发大标题更新
     UpdateBigTitle();
@@ -892,8 +953,121 @@ function searchnow() {
     if (checkCommands(keywords)) return;
     console.log('开始搜索' + keywords);
     displayTip('正在搜索...');
-    location.href = searchEngine + encodeURI(keywords);
+    if(specialSearch==false) location.href = searchEngine + encodeURI(keywords);
+    else eval(searchEngine+"('"+keywords+"')");
     return;
+}
+
+function kugoumusicsearch(key){
+    autohideTip("正在搜索音乐...");
+    var progress = new Progress({ color: 'rgba(20,144,255,.8)' });
+    var loadingModal = new Modal({
+        type: 'info',
+        title: '正在查询',
+        buttons: [],
+        content: progress
+    });
+    loadingModal.open();
+    jsonp(kugoumusicsearchapi,{
+        'keyword': key
+    },function(data){
+        loadingModal.close();
+        if(data.status!="200"){
+            if(data.status!="404") {
+                new Modal({
+                    type: 'caution',
+                    title: '查询失败',
+                    text: '远程服务器返回错误(' + data.status + ')，请稍后重试！',
+                    buttons: [],
+                    closeAfter: 3000
+                }).open();
+                return;
+            }else{
+                new Modal({
+                    type: 'info',
+                    title: '未找到',
+                    text: '未找到相关歌曲，请检查关键词重试！',
+                    buttons: [],
+                    closeAfter: 3000
+                }).open();
+                return;
+            }
+        }
+        kugoumusicsearchdata = data;
+        var c = data.count;
+        var lst = [];
+        for(i=0;i<c;i++){
+            if(i>=8) break;
+            lst.push({
+                id: i,
+                text: data.data[i].filename+" - "+data.data[i].singername
+            });
+        }
+        lst.push({
+            id: 'no',
+            text: '关闭'
+        });
+        var p = new Push({
+            type: 'info',
+            content: '点击查看',
+            position: 'bottom',
+            buttons: lst
+        });
+        p.open();
+        p.getPromise().then(function(value){
+            if(value==="no"){
+                cleanInput();
+                return;
+            }
+            getKugouMusicDetail(value);
+        });
+    });
+}
+
+function getKugouMusicDetail(id){
+    var num = parseInt(id);
+    var data = kugoumusicsearchdata;
+    if(!data.data[num]){
+        new Modal({
+            type: 'caution',
+            title: 'Oops...',
+            text: '数据被丢失，请重新搜索。若经常出现，请汇报issue。',
+            buttons: [
+                {
+                    text: '确定'
+                }
+            ]
+        }).open();
+        return;
+    }
+    var d = data.data[num];
+    var msg = new Modal({
+        title: d.filename,
+        text: '歌手：'+d.singername+'<br>专辑：'+d.album_name,
+        content: "<audio controls='true' src='"+d.url+"'></audio><br><center><img src='"+d.headpic+"' max-width='120'></img><br>是否下载？</center>",
+        buttons: [
+            {
+                id: 'no',
+                text: "否",
+                normal: true
+            },
+            {
+                id: 'yes',
+                text: "是"
+            }
+        ]
+    });
+    msg.open();
+    msg.getPromise().then(function(value){
+        if(value==='yes'){
+            open(d.url);
+            new Modal({
+                title: '已经开始下载',
+                text: d.filename,
+                closeAfter: 3000
+            }).open();
+        }
+    });
 }
 
 function cleanInput(text) {
@@ -1052,44 +1226,60 @@ function checkCommands(k) {
     var oneletter = k.substring(0, 2);
     var twoletter = k.substring(0, 3);
     var threeletter = k.substring(0, 4);
+    var fiveletter = k.substring(0, 6);
     //console.log(oneletter+";"+threeletter);
     if (oneletter == ':g') {
+        specialSearch = false;
         searchEngine = "https://www.google.com.hk/search?q=";
         document.getElementById('search-input').placeholder = 'Google';
         autohideTip('谷歌搜索');
         updateSettings();
-        setSearchIco()
+        setSearchIco();
         cleanInput();
         return true;
     }
     if (oneletter == ':t') {
+        specialSearch = false;
         searchEngine = "http://m.iciba.com/";
         autohideTip('翻译模式');
         document.getElementById('search-input').placeholder = '翻译模式';
         updateSettings();
-        setSearchIco()
+        setSearchIco();
         cleanInput();
         return true;
     }
     if (threeletter == ':map') {
+        specialSearch = false;
         searchEngine = "http://map.sogou.com/#&lq=";
         autohideTip('地图搜索');
         document.getElementById('search-input').placeholder = '地图搜索';
         updateSettings();
-        setSearchIco()
+        setSearchIco();
+        cleanInput();
+        return true;
+    }
+    if (fiveletter == ':music') {
+        specialSearch = true;
+        searchEngine = "kugoumusicsearch";
+        autohideTip('酷狗音乐搜索');
+        document.getElementById('search-input').placeholder = '酷狗音乐';
+        updateSettings();
+        setSearchIco();
         cleanInput();
         return true;
     }
     if (oneletter == ':b') {
+        specialSearch = false;
         searchEngine = "https://www.baidu.com/s?wd=";
         autohideTip('返回默认百度搜索');
         document.getElementById('search-input').placeholder = '';
         updateSettings();
-        setSearchIco()
+        setSearchIco();
         cleanInput();
         return true;
     }
     if (twoletter == ':av') {
+        specialSearch = false;
         var kwd = k.replace(" ", "");
         var av = kwd.substring(3);
         if (isEmpty(av)) {
@@ -1102,6 +1292,7 @@ function checkCommands(k) {
         return true;
     }
     if (twoletter == ':qr') {
+        specialSearch = false;
         //console.log('Try run qr maker');
         var qrcontent = k.replace(":qr", "");
         qrcontent = qrcontent.replace(":qr ", "");
@@ -1514,7 +1705,7 @@ function init() {
         loadFavicons();
         setSearchIco();
         hitokoto();
-        News();
+        newsTips();
         checkifnew();
         screenTiper();
         console.log('Loaded.');
